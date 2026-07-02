@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="InventoryItem">
+  <title>InventoryItem</title>
+  <rect width="64" height="64" fill="none"/>
+  <path d="M14 24l18-10 18 10v22L32 56 14 46z" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M14 24l18 10 18-10M32 34v22" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M24 19l18 10" stroke="#2F9E44" stroke-width="4" stroke-linecap="round"/>
+</svg>

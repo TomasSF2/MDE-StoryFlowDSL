@@ -1,0 +1,75 @@
+TEST T4-02 — Softlock / deadlock (reachable dead-end)
+Category: T4 (Semantic failure / formal verification)
+
+WHAT THIS TEST VERIFIES
+  That the model checker detects a reachable non-ending state from which the player
+  can never make another move. The only exit from "dark_room" is guarded by
+  "inventory contains exit_code", and exit_code is never granted. Once the player
+  steps in (corridor -> dark_room) no transition is ever enabled again.
+
+WHY STATIC CHECKS MISS IT
+  "dark_room" is a non-ending scene and DOES have a choice, so EVL's
+  NonEndingSceneHasChoices is satisfied. EVL never checks whether the choice's guard
+  can ever fire, so the dead-end is invisible to it.
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... PASS
+  EVL ............... PASS (all constraints)
+  Verification ...... FAIL
+
+PROPERTIES CHECKED (NuSMV) AND EXPECTED RESULT
+  AG (!is_accepting -> can_move) ........... expected FALSE  <-- the deadlock (main result)
+  AG (EF is_accepting) ..................... expected FALSE  <-- ending no longer reachable
+  EF node = n_ending_escape ................ expected FALSE  <-- escape unreachable
+  EF is_good_ending ........................ expected FALSE
+  !(node = n_ending_escape & !has_exit_code) ... TRUE 
+
+EXPECTED RESULT
+  NuSMV finds a reachable state (node = n_dark_room, can_move = FALSE) with no escape.
+  Maps to StoryFlow property: "The player can never reach a deadlock state before the end."
+
+EVIDENCE 
+  -- specification EF node = n_ending_escape  is false
+  -- as demonstrated by the following execution sequence
+  Trace Description: CTL Counterexample
+  Trace Type: Counterexample
+    -> State: 1.1 <-
+      node = n_corridor
+      has_exit_code = FALSE
+      can_move = TRUE
+      is_good_ending = FALSE
+      is_accepting = FALSE
+  -- specification AG (!is_accepting -> can_move)  is false
+  -- as demonstrated by the following execution sequence
+  Trace Description: CTL Counterexample
+  Trace Type: Counterexample
+    -> State: 2.1 <-
+      node = n_corridor
+      has_exit_code = FALSE
+      can_move = TRUE
+      is_good_ending = FALSE
+      is_accepting = FALSE
+    -> State: 2.2 <-
+      node = n_dark_room
+      can_move = FALSE
+  -- specification AG (EF is_accepting)  is false
+  -- as demonstrated by the following execution sequence
+  Trace Description: CTL Counterexample
+  Trace Type: Counterexample
+    -> State: 3.1 <-
+      node = n_corridor
+      has_exit_code = FALSE
+      can_move = TRUE
+      is_good_ending = FALSE
+      is_accepting = FALSE
+  -- specification EF is_good_ending  is false
+  -- as demonstrated by the following execution sequence
+  Trace Description: CTL Counterexample
+  Trace Type: Counterexample
+    -> State: 4.1 <-
+      node = n_corridor
+      has_exit_code = FALSE
+      can_move = TRUE
+      is_good_ending = FALSE
+      is_accepting = FALSE
+  -- invariant !(node = n_ending_escape & !has_exit_code)  is true

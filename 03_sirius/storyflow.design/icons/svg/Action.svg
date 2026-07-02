@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Action">
+  <title>Action</title>
+  <rect width="64" height="64" fill="none"/>
+  <rect x="11" y="15" width="42" height="34" rx="5" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="3"/>
+  <path d="M18 33h22" stroke="#E64980" stroke-width="4" stroke-linecap="round"/>
+  <path d="M35 24l11 9-11 9" fill="none" stroke="#E64980" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M47 13l4 4M51 13l-4 4" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+</svg>

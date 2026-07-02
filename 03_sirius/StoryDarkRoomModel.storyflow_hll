@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:storyflow_hll="http://www.example.org/storyflow_hll" name="Frank's Dark Room" version="1.0">
+  <variables name="dark_room_evidence" defaultValue="false"/>
+  <characters id="max" name="Max" description="Max"/>
+  <characters id="chloe" name="Chloe" description="Chloe"/>
+  <characters id="frank" name="Frank" description="Frank"/>
+  <items id="rv_key" name="RV key" description="Frank's RV Key"/>
+  <items id="photo_evidence" name="Photo evidence" description="Photo Evidence"/>
+  <chapters name="Negotiation" order="1" description="Frank's RV negotiation">
+    <scenes id="frank_negotiation" name="Frank Negotiation" description="Frank eyes you suspiciously across the hood of his RV. The key glints on his belt loop. How do you approach this?" isStart="true">
+      <choices id="choice_frank_negotiation_to_dark_room_entrance" label="Negotiate peacefully" target="//@chapters.0/@scenes.2">
+        <effects type="ADD_ITEM" targetItem="//@items.0" value="rv_key"/>
+      </choices>
+      <choices id="choice_frank_negotiation_to_dark_room_entrance" label="Threaten Frank" target="//@chapters.0/@scenes.2">
+        <dicerule min="1" max="6" successThreshold="4" onSuccess="//@chapters.0/@scenes.2" onFailure="//@chapters.0/@scenes.1"/>
+        <effects type="ADD_ITEM" targetItem="//@items.0" value="rv_key"/>
+      </choices>
+      <characters href="#//@characters.2"/>
+      <characters href="StoryDanaModel.storyflow_hll#//@characters.0"/>
+    </scenes>
+    <scenes id="chase_scene" name="Chase Scene" description="Frank bolts. His dog barks. You sprint through the junkyard, heart hammering.">
+      <choices id="choice_chase_scene_to_frank_negotiation" label="Rewind time and try again" target="//@chapters.0/@scenes.0">
+        <effects type="REMOVE_ITEM" targetItem="//@items.0" value="rv_key"/>
+      </choices>
+      <choices id="choice_chase_scene_to_scene_5" label="Give up on key" target="//@chapters.1/@scenes.0">
+        <effects type="REMOVE_ITEM" targetItem="//@items.0" value=""/>
+      </choices>
+      <characters href="#//@characters.2"/>
+      <characters href="StoryDanaModel.storyflow_hll#//@characters.0"/>
+    </scenes>
+    <scenes id="dark_room_entrance" name="Dark Room Entrance" description="A heavy door, paint peeling, a padlock. The smell of chemicals seeps from within. You need that key.">
+      <choices id="choice_dark_room_entrance_to_inside_dark_room" label="Enter the dark room" target="//@chapters.0/@scenes.3">
+        <condition expression="rv_key" referencedItems="//@items.0"/>
+      </choices>
+      <characters href="#//@characters.2"/>
+      <characters href="StoryDanaModel.storyflow_hll#//@characters.0"/>
+    </scenes>
+    <scenes id="inside_dark_room" name="Inside Dark Room" description="Red light. Rows of photographs. Evidence of every victim. Your stomach turns as you reach for the stack.">
+      <choices id="choice_inside_dark_room_to_scene_5" label="Collect photo evidence" target="//@chapters.1/@scenes.0">
+        <effects type="ADD_ITEM" targetItem="//@items.1" value="photo_evidence"/>
+        <effects targetVar="//@variables.0" value="true"/>
+      </choices>
+      <characters href="#//@characters.2"/>
+      <characters href="StoryDanaModel.storyflow_hll#//@characters.0"/>
+      <characters href="#//@characters.1"/>
+    </scenes>
+  </chapters>
+  <chapters name="Lighthouse Final decision" order="2">
+    <scenes id="lighthouse_path" name="Lighthouse Path" description="The cliff path winds upward through salt grass. Below, waves crash against the rocks of Arcadia Bay.">
+      <choices id="choice_lighthouse_path_to_lighthouse_decision" label="Walk to the lighthouse cliff" target="//@chapters.1/@scenes.1"/>
+      <characters href="StoryDanaModel.storyflow_hll#//@characters.0"/>
+    </scenes>
+    <scenes id="lighthouse_decision" name="Lighthouse Decision" description="The storm tears at your hair. Two futures stretch before you, both unbearable. You must choose." characters="//@characters.1 //@characters.0">
+      <choices id="choice_lighthouse_decision_to_ending_save_chloe" label="Save Chloe" target="//@chapters.1/@scenes.3"/>
+      <choices id="choice_lighthouse_decision_to_ending_sacrifice_chloe" label="Sacrifice Chloe" target="//@chapters.1/@scenes.2"/>
+    </scenes>
+    <scenes id="ending_sacrifice_chloe" name="Sacrifice Chloe" description="Chloe closes your hands around hers and smiles. Arcadia Bay endures. But at a cost you will carry forever." isEnding="true" endingType="BAD" characters="//@characters.1 //@characters.0"/>
+    <scenes id="ending_save_chloe" name="Save Chloe" description="The Bay floods. Homes, memories, lives, swept away. But Chloe is alive, alive in the passenger seat beside you." isEnding="true" characters="//@characters.1 //@characters.0"/>
+  </chapters>
+</storyflow_hll:Story>

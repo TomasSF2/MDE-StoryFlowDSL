@@ -1,0 +1,133 @@
+rule Story2NarrativeGraph
+	transform s : HLL!Story
+	to g : Pivot!NarrativeGraph {
+	
+	g.storyName = s.name;
+	g.variables = s.variables->collect(v | v.equivalent());
+	g.items = s.items->collect(i | i.equivalent());
+	
+	var allScenes = s.chapters->collect(c | c.scenes)->flatten();
+	g.nodes = allScenes->collect(sc | sc.equivalent());	
+	
+	var allChoices = allScenes->collect(sc | sc.choices)->flatten();
+    g.edges = allChoices->collect(ch | ch.equivalent());
+    
+    var startScene = allScenes->selectOne(sc | sc.isStart = true);
+    g.startNode = startScene.equivalent();
+}
+
+rule Variable2PivotVariable
+    transform v : HLL!Variable
+    to pv : Pivot!PivotVariable {
+
+    pv.name = v.name;
+	if (v.type = HLL!VarType#BOOLEAN) {
+        pv.type = Pivot!VarType#BOOLEAN;
+    } else if (v.type = HLL!VarType#INTEGER) {
+        pv.type = Pivot!VarType#INTEGER;
+    } else if (v.type = HLL!VarType#STRING) {
+        pv.type = Pivot!VarType#STRING;
+    }
+    pv.initialValue = v.defaultValue;
+}
+
+rule InventoryItem2PivotItem
+    transform item : HLL!InventoryItem
+    to pi : Pivot!PivotItem {
+
+    pi.id = item.id;
+    pi.name = item.name;
+}
+
+rule Scene2Node
+    transform sc : HLL!Scene
+    to n : Pivot!Node {
+
+    n.id = sc.name;
+    n.label = sc.name;
+	n.description = sc.description;	
+    n.isStart = sc.isStart;
+    n.isAccepting = sc.isEnding;
+
+    if (sc.isEnding) {
+        if (sc.endingType = HLL!EndingType#GOOD) {
+            n.endingType = Pivot!EndingType#GOOD;
+        } else if (sc.endingType = HLL!EndingType#BAD) {
+            n.endingType = Pivot!EndingType#BAD;
+        } else {
+            n.endingType = Pivot!EndingType#NEUTRAL;
+        }
+    }
+}
+
+rule Choice2Edge
+    transform ch : HLL!Choice
+    to e : Pivot!Edge {
+
+    var parentScene = ch.eContainer();
+
+    e.id = parentScene.name + "_choice_" + ch.id;
+    e.label = ch.label;
+
+    e.source = parentScene.equivalent();
+    e.target = ch.target.equivalent();
+
+    if (ch.condition.isDefined()) {
+		e.`guard`.add(ch.condition.equivalent());    
+	}
+
+    e.actions.addAll(ch.effects.equivalent());
+
+    if (ch.dicerule.isDefined()) {
+        e.diceRule = ch.dicerule.equivalent();
+    }
+}
+
+rule Condition2Guard
+    transform cond : HLL!Condition
+    to g : Pivot!Guard {
+
+    g.expression = cond.expression;
+
+    if (cond.referencedVars.notEmpty()) {
+        g.varRefs = cond.referencedVars.first().equivalent();
+    }
+
+    if (cond.referencedItems.notEmpty()) {
+        g.itemsRefs = cond.referencedItems.first().equivalent();
+    }
+}
+
+rule Effect2Action
+    transform ef : HLL!Effect
+    to a : Pivot!Action {
+
+    if (ef.type = HLL!EffectType#SET_VARIABLE) {
+        a.type = Pivot!ActionType#SET_VAR;
+        if (ef.targetVar.isDefined()) {
+            a.targetVariable = ef.targetVar.equivalent();
+        }
+    } else if (ef.type = HLL!EffectType#ADD_ITEM) {
+        a.type = Pivot!ActionType#ADD_ITEM;
+        if (ef.targetItem.isDefined()) {
+            a.targetItem = ef.targetItem.equivalent();
+        }
+    } else if (ef.type = HLL!EffectType#REMOVE_ITEM) {
+        a.type = Pivot!ActionType#REMOVE_ITEM;
+        if (ef.targetItem.isDefined()) {
+            a.targetItem = ef.targetItem.equivalent();
+        }
+    }
+}
+
+rule DiceRule2PivotDiceRule
+    transform dr : HLL!DiceRule
+    to pdr : Pivot!PivotDiceRule {
+
+    pdr.min = dr.min;
+    pdr.max = dr.max;
+    pdr.successThreshold = dr.successThreshold;
+
+    pdr.successTarget = dr.onSuccess.equivalent();
+    pdr.failureTarget = dr.onFailure.equivalent();
+}

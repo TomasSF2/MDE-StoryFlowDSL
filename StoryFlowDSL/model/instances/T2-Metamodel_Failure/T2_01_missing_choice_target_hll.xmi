@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="T2-01 Missing Choice Target"
+    version="1">
+  <chapters name="Arcadia Bay" order="1">
+    <scenes id="1" name="diner" isStart="true">
+      <!-- VIOLATION: this Choice has no 'target'. Choice.target is lowerBound=1. -->
+      <choices id="1" label="Leave the diner"/>
+    </scenes>
+    <scenes id="2" name="ending_home" isEnding="true" endingType="GOOD"/>
+  </chapters>
+</storyflow_hll:Story>

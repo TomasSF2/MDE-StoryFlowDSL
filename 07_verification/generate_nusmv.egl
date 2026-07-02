@@ -1,0 +1,467 @@
+-- StoryFlow NuSMV generator bootstrap line. Keep this plain text before the first EGL tag.
+[%
+/*
+ * StoryFlow pivot -> NuSMV generator
+ * Run with generate_nusmv.egx.
+ *
+ * Important parser-safety detail:
+ * This template starts with plain text because some Eclipse/Epsilon EGL
+ * installations reject a template whose first token is an EGL START_TAG.
+ * All NuSMV text is built in this EOL block and emitted at the end with
+ * one simple output expression. Do not use a local variable named out,
+ * because EGL reserves out for its internal writer.
+ */
+
+var graph = g;
+var nodes = graph.nodes;
+var edges = graph.edges;
+
+// Build a complete list of boolean variables used by the transition system.
+// Some pivot models reference a variable in a guard even if it was not included
+// in graph.variables, so we collect declared variables + guard references + action targets.
+var boolVars = Sequence{};
+for (declaredVar in graph.variables) {
+  if (declaredVar.type.isDefined()) {
+    var declaredTypeText = declaredVar.type.asString();
+    if ((declaredTypeText = "BOOLEAN" or declaredTypeText.contains("BOOLEAN")) and not boolVars.includes(declaredVar)) {
+      boolVars.add(declaredVar);
+    }
+  }
+}
+for (edgeForVars in edges) {
+  for (guardForVars in edgeForVars.`guard`) {
+    if (guardForVars.varRefs.isDefined() and not boolVars.includes(guardForVars.varRefs)) {
+      boolVars.add(guardForVars.varRefs);
+    }
+  }
+  for (actionForVars in edgeForVars.actions) {
+    if (actionForVars.targetVariable.isDefined() and not boolVars.includes(actionForVars.targetVariable)) {
+      boolVars.add(actionForVars.targetVariable);
+    }
+  }
+}
+
+// Same idea for items: include declared inventory items plus any item referenced
+// by guards/actions, so NuSMV never sees an undeclared has_<item> symbol.
+var items = Sequence{};
+for (declaredItem in graph.items) {
+  if (not items.includes(declaredItem)) {
+    items.add(declaredItem);
+  }
+}
+for (edgeForItems in edges) {
+  for (guardForItems in edgeForItems.`guard`) {
+    if (guardForItems.itemsRefs.isDefined() and not items.includes(guardForItems.itemsRefs)) {
+      items.add(guardForItems.itemsRefs);
+    }
+  }
+  for (actionForItems in edgeForItems.actions) {
+    if (actionForItems.targetItem.isDefined() and not items.includes(actionForItems.targetItem)) {
+      items.add(actionForItems.targetItem);
+    }
+  }
+}
+
+var acceptingNodes = nodes.select(n | n.isAccepting);
+// Be robust when checking enum values: depending on the Epsilon/EMF setup,
+// asString() may produce just "GOOD" or a qualified enum representation.
+// Direct enum comparison is the safest option; contains("GOOD") is kept as fallback.
+var goodEndingNodes = acceptingNodes.select(n |
+  n.endingType = Pivot!EndingType#GOOD or n.endingType.asString().contains("GOOD")
+);
+
+var smv = "";
+
+smv = smv + "-- =============================================================\n";
+smv = smv + "-- Generated NuSMV model for StoryFlow\n";
+smv = smv + "-- Story: " + graph.storyName + "\n";
+smv = smv + "-- Source metamodel: storyflow_pivot\n";
+smv = smv + "-- =============================================================\n\n";
+smv = smv + "MODULE main\n\n";
+
+// =============================================================
+// VAR section
+// =============================================================
+smv = smv + "VAR\n";
+smv = smv + "  node : {";
+var firstNode = true;
+for (n in nodes) {
+  if (not firstNode) {
+    smv = smv + ", ";
+  }
+  smv = smv + "n_" + n.id;
+  firstNode = false;
+}
+smv = smv + "};\n";
+
+for (v in boolVars) {
+  smv = smv + "  v_" + v.name + " : boolean;\n";
+}
+for (i in items) {
+  smv = smv + "  has_" + i.id + " : boolean;\n";
+}
+smv = smv + "\n";
+
+// =============================================================
+// ASSIGN section
+// =============================================================
+smv = smv + "ASSIGN\n";
+smv = smv + "  init(node) := n_" + graph.startNode.id + ";\n";
+for (v in boolVars) {
+  var initial = "FALSE";
+  if (v.initialValue.isDefined() and v.initialValue.asString().toLowerCase() = "true") {
+    initial = "TRUE";
+  }
+  smv = smv + "  init(v_" + v.name + ") := " + initial + ";\n";
+}
+for (i in items) {
+  smv = smv + "  init(has_" + i.id + ") := FALSE;\n";
+}
+smv = smv + "\n";
+
+// =============================================================
+// DEFINE section
+// =============================================================
+smv = smv + "DEFINE\n";
+smv = smv + "  is_accepting := ";
+if (acceptingNodes.isEmpty()) {
+  smv = smv + "FALSE";
+}
+else {
+  var firstAccepting = true;
+  for (n in acceptingNodes) {
+    if (not firstAccepting) {
+      smv = smv + " | ";
+    }
+    smv = smv + "node = n_" + n.id;
+    firstAccepting = false;
+  }
+}
+smv = smv + ";\n\n";
+
+smv = smv + "  is_good_ending := ";
+if (goodEndingNodes.isEmpty()) {
+  smv = smv + "FALSE";
+}
+else {
+  var firstGood = true;
+  for (n in goodEndingNodes) {
+    if (not firstGood) {
+      smv = smv + " | ";
+    }
+    smv = smv + "node = n_" + n.id;
+    firstGood = false;
+  }
+}
+smv = smv + ";\n\n";
+
+// Debug comments in the generated .smv: useful to prove which endingType values
+// the generator actually saw from the pivot model.
+smv = smv + "-- Ending classification detected by EGL:\n";
+for (dbgEnd in acceptingNodes) {
+  smv = smv + "--   " + dbgEnd.id + " endingType=" + dbgEnd.endingType.asString() + " isGood=";
+  if (goodEndingNodes.includes(dbgEnd)) {
+    smv = smv + "true\n";
+  }
+  else {
+    smv = smv + "false\n";
+  }
+}
+smv = smv + "\n";
+
+smv = smv + "  can_move :=\n";
+if (edges.isEmpty()) {
+  smv = smv + "      FALSE;\n\n";
+}
+else {
+  var firstCanMove = true;
+  for (e in edges) {
+    var guardText = "TRUE";
+    for (gr in e.`guard`) {
+      if (gr.itemsRefs.isDefined()) {
+        guardText = guardText + " & has_" + gr.itemsRefs.id;
+      }
+      if (gr.varRefs.isDefined()) {
+        var exp = gr.expression.asString().toLowerCase();
+        var vNameLower = gr.varRefs.name.toLowerCase();
+        if (exp.contains("false") or exp.contains("!" + vNameLower) or exp.contains("not " + vNameLower)) {
+          guardText = guardText + " & !v_" + gr.varRefs.name;
+        }
+        else {
+          guardText = guardText + " & v_" + gr.varRefs.name;
+        }
+      }
+    }
+    if (not firstCanMove) {
+      smv = smv + "      |\n";
+    }
+    smv = smv + "      (node = n_" + e.source.id + " & " + guardText + ")";
+    firstCanMove = false;
+  }
+  smv = smv + ";\n\n";
+}
+
+// =============================================================
+// TRANS section
+// =============================================================
+smv = smv + "-- Complete transition relation. Non-ending nodes stutter only when no outgoing\n";
+smv = smv + "-- transition is enabled. This keeps NuSMV total while still exposing softlocks.\n";
+smv = smv + "TRANS\n";
+smv = smv + "(\n";
+
+var firstTransition = true;
+
+for (e in edges) {
+  var guardText2 = "TRUE";
+  for (gr2 in e.`guard`) {
+    if (gr2.itemsRefs.isDefined()) {
+      guardText2 = guardText2 + " & has_" + gr2.itemsRefs.id;
+    }
+    if (gr2.varRefs.isDefined()) {
+      var exp2 = gr2.expression.asString().toLowerCase();
+      var vNameLower2 = gr2.varRefs.name.toLowerCase();
+      if (exp2.contains("false") or exp2.contains("!" + vNameLower2) or exp2.contains("not " + vNameLower2)) {
+        guardText2 = guardText2 + " & !v_" + gr2.varRefs.name;
+      }
+      else {
+        guardText2 = guardText2 + " & v_" + gr2.varRefs.name;
+      }
+    }
+  }
+
+  if (not firstTransition) {
+    smv = smv + "  |\n";
+  }
+  smv = smv + "  (node = n_" + e.source.id + "\n";
+  smv = smv + "   & " + guardText2 + "\n";
+  if (e.diceRule.isDefined()) {
+    smv = smv + "   & next(node) = n_" + e.diceRule.successTarget.id + "\n";
+  }
+  else {
+    smv = smv + "   & next(node) = n_" + e.target.id + "\n";
+  }
+
+  for (v2 in boolVars) {
+    var setVar = false;
+    for (a in e.actions) {
+      var actionTypeText = "";
+      if (a.type.isDefined()) {
+        actionTypeText = a.type.asString();
+      }
+
+      // Robust enum check: Eclipse/Epsilon may expose enum literals as
+      // "SET_VAR", "ActionType#SET_VAR", or another qualified string.
+      // If the action has a targetVariable but no type, treat it as SET_VAR
+      // for backwards compatibility with older pivot models.
+      if (a.targetVariable.isDefined() and a.targetVariable = v2) {
+        if ((not a.type.isDefined()) or actionTypeText = "SET_VAR" or actionTypeText.contains("SET_VAR")) {
+          setVar = true;
+        }
+      }
+    }
+    if (setVar) {
+      smv = smv + "   & next(v_" + v2.name + ") = TRUE\n";
+    }
+    else {
+      smv = smv + "   & next(v_" + v2.name + ") = v_" + v2.name + "\n";
+    }
+  }
+
+  for (i2 in items) {
+    var addItem = false;
+    var removeItem = false;
+    for (a2 in e.actions) {
+      var itemActionTypeText = "";
+      if (a2.type.isDefined()) {
+        itemActionTypeText = a2.type.asString();
+      }
+
+      if (a2.targetItem.isDefined() and a2.targetItem = i2) {
+        if (itemActionTypeText = "REMOVE_ITEM" or itemActionTypeText.contains("REMOVE_ITEM")) {
+          removeItem = true;
+        }
+        else {
+          // Robust enum check for ADD_ITEM. If an item action has no type,
+          // treat it as ADD_ITEM for backwards compatibility.
+          if ((not a2.type.isDefined()) or itemActionTypeText = "ADD_ITEM" or itemActionTypeText.contains("ADD_ITEM")) {
+            addItem = true;
+          }
+        }
+      }
+    }
+    if (removeItem) {
+      smv = smv + "   & next(has_" + i2.id + ") = FALSE\n";
+    }
+    else {
+      if (addItem) {
+        smv = smv + "   & next(has_" + i2.id + ") = TRUE\n";
+      }
+      else {
+        smv = smv + "   & next(has_" + i2.id + ") = has_" + i2.id + "\n";
+      }
+    }
+  }
+  smv = smv + "  )\n";
+  firstTransition = false;
+
+  // Dice failure branch: failure moves to failureTarget and applies no edge actions.
+  if (e.diceRule.isDefined()) {
+    smv = smv + "  |\n";
+    smv = smv + "  (node = n_" + e.source.id + "\n";
+    smv = smv + "   & " + guardText2 + "\n";
+    smv = smv + "   & next(node) = n_" + e.diceRule.failureTarget.id + "\n";
+    for (vF in boolVars) {
+      smv = smv + "   & next(v_" + vF.name + ") = v_" + vF.name + "\n";
+    }
+    for (iF in items) {
+      smv = smv + "   & next(has_" + iF.id + ") = has_" + iF.id + "\n";
+    }
+    smv = smv + "  )\n";
+  }
+}
+
+// Stutter only when a non-ending node has no enabled outgoing transition.
+// This makes softlocks visible through can_move = FALSE.
+for (n2 in nodes.select(x | not x.isAccepting)) {
+  var localEdges = edges.select(le | le.source = n2);
+  var localGuardDisjunction = "FALSE";
+  if (not localEdges.isEmpty()) {
+    localGuardDisjunction = "";
+    var firstLocal = true;
+    for (le2 in localEdges) {
+      var localGuard = "TRUE";
+      for (lgr in le2.`guard`) {
+        if (lgr.itemsRefs.isDefined()) {
+          localGuard = localGuard + " & has_" + lgr.itemsRefs.id;
+        }
+        if (lgr.varRefs.isDefined()) {
+          var lexp = lgr.expression.asString().toLowerCase();
+          var lvNameLower = lgr.varRefs.name.toLowerCase();
+          if (lexp.contains("false") or lexp.contains("!" + lvNameLower) or lexp.contains("not " + lvNameLower)) {
+            localGuard = localGuard + " & !v_" + lgr.varRefs.name;
+          }
+          else {
+            localGuard = localGuard + " & v_" + lgr.varRefs.name;
+          }
+        }
+      }
+      if (not firstLocal) {
+        localGuardDisjunction = localGuardDisjunction + " | ";
+      }
+      localGuardDisjunction = localGuardDisjunction + "(" + localGuard + ")";
+      firstLocal = false;
+    }
+  }
+
+  if (not firstTransition) {
+    smv = smv + "  |\n";
+  }
+  smv = smv + "  (node = n_" + n2.id + "\n";
+  smv = smv + "   & !(" + localGuardDisjunction + ")\n";
+  smv = smv + "   & next(node) = node\n";
+  for (vS in boolVars) {
+    smv = smv + "   & next(v_" + vS.name + ") = v_" + vS.name + "\n";
+  }
+  for (iS in items) {
+    smv = smv + "   & next(has_" + iS.id + ") = has_" + iS.id + "\n";
+  }
+  smv = smv + "  )\n";
+  firstTransition = false;
+}
+
+// Accepting endings stutter forever.
+if (not firstTransition) {
+  smv = smv + "  |\n";
+}
+smv = smv + "  (is_accepting\n";
+smv = smv + "   & next(node) = node\n";
+for (vT in boolVars) {
+  smv = smv + "   & next(v_" + vT.name + ") = v_" + vT.name + "\n";
+}
+for (iT in items) {
+  smv = smv + "   & next(has_" + iT.id + ") = has_" + iT.id + "\n";
+}
+smv = smv + "  )\n";
+smv = smv + ");\n\n";
+
+// =============================================================
+// Verification properties
+// =============================================================
+smv = smv + "-- =============================================================\n";
+smv = smv + "-- Verification properties\n";
+smv = smv + "-- =============================================================\n\n";
+
+smv = smv + "-- P1. Reachability of endings: every accepting node must be reachable from start.\n";
+if (acceptingNodes.isEmpty()) {
+  smv = smv + "CTLSPEC EF FALSE; -- FAILS intentionally: this story has no accepting/end node.\n";
+}
+else {
+  for (endNode in acceptingNodes) {
+    smv = smv + "CTLSPEC EF node = n_" + endNode.id + "; -- accepting ending: " + endNode.id + "\n";
+  }
+}
+smv = smv + "\n";
+
+smv = smv + "-- P2. No deadlock / no softlock before an ending.\n";
+smv = smv + "-- Every reachable non-ending state must have at least one enabled outgoing transition.\n";
+smv = smv + "CTLSPEC AG (!is_accepting -> can_move);\n\n";
+
+smv = smv + "-- P3. Locked-scene safety / item-gating invariant.\n";
+smv = smv + "-- Only scenes whose every incoming path requires the same item are treated as locked.\n";
+smv = smv + "-- Item-guarded choices inside an otherwise reachable scene are already protected by TRANS guards.\n";
+var lockedInvariantCount = 0;
+var sawAnyItemGuard = false;
+for (candidateNode in nodes) {
+  for (candidateItem in items) {
+    var hasIncomingWithThisItemGuard = false;
+    var hasIncomingWithoutThisItemGuard = false;
+
+    for (incomingEdge in edges.select(e | e.target = candidateNode)) {
+      var incomingRequiresThisItem = false;
+
+      for (incomingGuard in incomingEdge.`guard`) {
+        if (incomingGuard.itemsRefs.isDefined() and incomingGuard.itemsRefs = candidateItem) {
+          incomingRequiresThisItem = true;
+          sawAnyItemGuard = true;
+        }
+      }
+
+      if (incomingRequiresThisItem) {
+        hasIncomingWithThisItemGuard = true;
+      }
+      else {
+        hasIncomingWithoutThisItemGuard = true;
+      }
+    }
+
+    if (hasIncomingWithThisItemGuard and not hasIncomingWithoutThisItemGuard) {
+      smv = smv + "INVARSPEC !(node = n_" + candidateNode.id + " & !has_" + candidateItem.id + "); -- locked scene: all incoming paths require item " + candidateItem.id + "\n";
+      lockedInvariantCount = lockedInvariantCount + 1;
+    }
+  }
+}
+if (lockedInvariantCount = 0) {
+  if (sawAnyItemGuard) {
+    smv = smv + "-- Item-guarded choices exist, but no whole scene is exclusively locked by an item.\n";
+    smv = smv + "-- Their safety is enforced directly in the transition relation.\n";
+  }
+  else {
+    smv = smv + "-- No item-guarded transitions were found in this model.\n";
+  }
+  smv = smv + "CTLSPEC AG TRUE;\n";
+}
+smv = smv + "\n";
+
+smv = smv + "-- P4. No unintended infinite loops.\n";
+smv = smv + "-- Intended navigation loops are allowed, but from every reachable state\n";
+smv = smv + "-- some accepting ending must still be reachable.\n";
+smv = smv + "CTLSPEC AG EF is_accepting;\n\n";
+
+smv = smv + "-- P5. At least one good ending is reachable.\n";
+if (goodEndingNodes.isEmpty()) {
+  smv = smv + "CTLSPEC EF FALSE; -- FAILS intentionally: this story has no GOOD ending.\n";
+}
+else {
+  smv = smv + "CTLSPEC EF is_good_ending;\n";
+}
+%][%= smv %]

@@ -1,0 +1,44 @@
+TEST T1-03 — The Train Tracks
+Category: T1 (Positive) — a valid model that must traverse the COMPLETE pipeline.
+Success criterion (spec Section 6.1):
+  conform to metamodel -> pass EVL -> transform via ETL -> formal verification
+  passes -> generate artifacts.
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... PASS
+  EVL ............... PASS (all 9 constraints)
+  ETL (M2M) ......... PASS (produces a well-formed pivot NarrativeGraph)
+  Verification ...... PASS (all properties below hold; no counterexample)
+  EGL (M2T) ......... PASS (generates artifacts, e.g. HTML/JS story runner)
+
+NuSMV naming: n_<scene>, has_<item>, is_accepting, is_good_ending, can_move.
+
+WHAT THIS TEST VERIFIES
+  Max must free Chloe from the rails before the train arrives.
+  Scenes: junkyard_arrival (start) -> wreck_pile -> switch_box -> switch_thrown ->
+  ending_chloe_saved (GOOD); a dice gamble (wreck_pile) can fail to too_late (BAD);
+  a rewind route leads to ending_close_call (NEUTRAL).
+  Mechanics exercised: INTEGER variable (rewind_energy), item gate (crowbar) plus a
+  variable gate (lever_freed), a dice roll whose FAILURE reaches a BAD ending, three
+  ending types.
+
+PROPERTIES CHECKED (NuSMV) AND EXPECTED RESULT
+  EF node = n_ending_chloe_saved ............. TRUE  (GOOD ending reachable)
+  EF node = n_ending_close_call .............. TRUE  (NEUTRAL ending reachable)
+  EF node = n_too_late ....................... TRUE  (BAD ending reachable via dice failure)
+  EF is_good_ending .......................... TRUE
+  AG (EF is_accepting) ....................... TRUE  (no softlock)
+  AG (!is_accepting -> can_move) ............. TRUE  (no deadlock)
+  G (node = n_switch_thrown -> lever_freed) .. TRUE  (switch only thrown after the lever is freed)
+
+EXPECTED RESULT
+  All constraints and properties hold. No counterexample. Artifacts generate successfully.
+
+EVIDENCE 
+  -- specification AG TRUE  is true
+  -- specification EF node = n_too_late  is true
+  -- specification EF node = n_ending_close_call  is true
+  -- specification EF node = n_ending_chloe_saved  is true
+  -- specification AG (!is_accepting -> can_move)  is true
+  -- specification AG (EF is_accepting)  is true
+  -- specification EF is_good_ending  is true

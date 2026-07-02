@@ -1,0 +1,71 @@
+context Story {
+    constraint ExactlyOneStartScene {
+        check {
+        		var allScenes = self.chapters.collect(c | c.scenes).flatten();
+        		return allScenes.select(s | s.isStart).size() = 1;
+		}
+        message : "Story '" + self.name + "' must have exactly one start scene, but where found:"
+                  + self.chapters.collect(c | c.scenes).flatten().select(s | s.isStart).size()
+    }
+    
+    constraint UniqueChapterOrder {
+        check : self.chapters.forAll(c1 |
+                    self.chapters.forAll(c2 |
+                        c1 = c2 or c1.order <> c2.order))
+        message : "Story '" + self.name + "' contains two or more chapters with the same order value. "
+                  + "Each chapter must have a unique order number."
+    }
+}
+
+context Chapter {
+
+    constraint ChapterNotEmpty {
+        check : self.scenes.size() >= 1
+        message : "Chapter '" + self.name + "' is empty. Every chapter must contain at least one scene."
+    }
+}
+
+context Scene {
+    constraint EndingSceneHasNoChoices {
+        guard : self.isEnding
+        check : self.choices.isEmpty()
+        message : "Scene '" + self.name + "' is marked as an ending but has "
+                  + self.choices.size() + " outgoing choice(s). Ending scenes must be terminal."
+    }
+    
+    constraint NonEndingSceneHasChoices {
+        guard : not self.isEnding
+        check : self.choices.size() >= 1
+        message : "Scene " + self.name + " is not an ending scene but has no outgoing choices. Add at least one choice."
+    }
+    
+    constraint UniqueSceneId {
+        check : Scene.allInstances().select(s | s.id = self.id).size() = 1
+        message : "Duplicate scene id: '" + self.id
+    }
+    
+     constraint StartCannotBeEnding {
+        check : not (self.isStart and self.isEnding)
+        message : "Scene '" + self.id + "' is flagged as both isStart and isEnding. "
+    }
+}
+
+context DiceRule {
+    constraint ValidDiceRange {
+        check : self.min < self.max
+                and self.successThreshold >= self.min
+                and self.successThreshold <= self.max
+        message : "DiceRule has an invalid configuration: Required: min < max  and  min <= successThreshold <= max."
+    }
+}
+
+context Effect {
+    constraint EffectTargetConsistency {
+        check : (self.type = EffectType#SET_VARIABLE implies self.targetVar.isDefined())
+            and
+            ((self.type = EffectType#ADD_ITEM or self.type = EffectType#REMOVE_ITEM)
+             implies self.targetItem.isDefined())
+        message : "Effect of type " + self.type + " has a missing or inconsistent target. "
+    }
+}
+

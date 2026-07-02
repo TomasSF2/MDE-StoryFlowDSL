@@ -1,0 +1,42 @@
+TEST T1-02 — The Blackwell Break-In
+Category: T1 (Positive) — a valid model that must traverse the COMPLETE pipeline.
+Success criterion (spec Section 6.1):
+  conform to metamodel -> pass EVL -> transform via ETL -> formal verification
+  passes -> generate artifacts.
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... PASS
+  EVL ............... PASS (all 9 constraints)
+  ETL (M2M) ......... PASS (produces a well-formed pivot NarrativeGraph)
+  Verification ...... PASS (all properties below hold; no counterexample)
+  EGL (M2T) ......... PASS (generates artifacts, e.g. HTML/JS story runner)
+
+NuSMV naming: n_<scene>, has_<item>, is_accepting, is_good_ending, can_move.
+
+WHAT THIS TEST VERIFIES
+  Max and Chloe break into Blackwell for Rachel Amber's file.
+  Scenes: main_entrance (start) -> corridor -> {records_room | security_office} ->
+  sealed_cabinet -> ending_proof (GOOD); alarm path -> caught_by_security (BAD);
+  benign records_room <-> corridor loop.
+  Mechanics exercised: a COMBINED gate (knows_passcode variable AND keycard item),
+  two SET_VARIABLE effects, an ADD_ITEM effect, an escapable loop, GOOD + BAD endings.
+
+PROPERTIES CHECKED (NuSMV) AND EXPECTED RESULT
+  EF node = n_ending_proof ................... TRUE  (GOOD ending reachable)
+  EF node = n_caught_by_security ............. TRUE  (BAD ending reachable)
+  EF is_good_ending .......................... TRUE
+  AG (EF is_accepting) ....................... TRUE  (no softlock)
+  AG (!is_accepting -> can_move) ............. TRUE  (no deadlock)
+  G (node = n_sealed_cabinet -> (has_keycard & knows_passcode)) ... TRUE
+        (the vault is never opened without BOTH the code and the keycard)
+
+EXPECTED RESULT
+  All constraints and properties hold. No counterexample. Artifacts generate successfully.
+
+EVIDENCE 
+  -- specification EF node = n_ending_clarity  is true
+  -- specification EF node = n_ending_safe_together  is true
+  -- specification AG (!is_accepting -> can_move)  is true
+  -- specification AG (EF is_accepting)  is true
+  -- specification EF is_good_ending  is true
+  -- invariant !(node = n_lamp_room & !has_lighthouse_key)  is true

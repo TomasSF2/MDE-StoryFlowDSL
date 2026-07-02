@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ASCII"?>
+<storyflow_pivot:NarrativeGraph xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:storyflow_pivot="http://www.example.org/storyflow_pivot" xsi:schemaLocation="http://www.example.org/storyflow_pivot storyflow_pivot.ecore" storyName="Frank's Dark Room" startNode="//@nodes.0">
+  <variables name="dark_room_evidence" initialValue="false"/>
+  <items id="photo_evidence" name="Photo evidence"/>
+  <items id="rv_key" name="RV Key"/>
+  <nodes id="frank_negotiation" label="frank_negotiation" description="Frank eyes you suspiciously across the hood of his RV. The key glints on his belt loop. How do you approach this?" isStart="true"/>
+  <nodes id="chase_scene" label="chase_scene" description="Frank bolts. His dog barks. You sprint through the junkyard, heart hammering."/>
+  <nodes id="dark_room_entrance" label="dark_room_entrance" description="A heavy door, paint peeling, a padlock. The smell of chemicals seeps from within. You need that key."/>
+  <nodes id="inside_dark_room" label="inside_dark_room" description="Red light. Rows of photographs. Evidence of every victim. Your stomach turns as you reach for the stack."/>
+  <nodes id="lighthouse_path" label="lighthouse_path" description="The cliff path winds upward through salt grass. Below, waves crash against the rocks of Arcadia Bay."/>
+  <nodes id="lighthouse_decision" label="lighthouse_decision" description="The storm tears at your hair. Two futures stretch before you, both unbearable. You must choose."/>
+  <nodes id="ending_sacrifice_chloe" label="ending_sacrifice_chloe" description="Chloe closes your hands around hers and smiles. Arcadia Bay endures. But at a cost you will carry forever." isAccepting="true" endingType="BAD"/>
+  <nodes id="ending_save_chloe" label="ending_save_chloe" description="The Bay floods. Homes, memories, lives, swept away. But Chloe is alive, alive in the passenger seat beside you." isAccepting="true" endingType="GOOD"/>
+  <edges id="frank_negotiation_choice_1" label="Negotiate peacefully" source="//@nodes.0" target="//@nodes.2">
+    <actions type="ADD_ITEM" targetItem="//@items.1"/>
+  </edges>
+  <edges id="frank_negotiation_choice_2" label="Threaten Frank" source="//@nodes.0" target="//@nodes.2">
+    <actions type="ADD_ITEM" targetItem="//@items.1"/>
+    <diceRule min="1" max="6" successThreshold="4" successTarget="//@nodes.2" failureTarget="//@nodes.1"/>
+  </edges>
+  <edges id="chase_scene_choice_1" label="Rewind time and try again" source="//@nodes.1" target="//@nodes.0"/>
+  <edges id="chase_scene_choice_2" label="Give up on key" source="//@nodes.1" target="//@nodes.4"/>
+  <edges id="dark_room_entrance_choice_1" label="Enter the Dark Room" source="//@nodes.2" target="//@nodes.3">
+    <guard expression="inventory contains rv_key" itemsRefs="//@items.1"/>
+  </edges>
+  <edges id="inside_dark_room_choice_1" label="Collect photo evidence" source="//@nodes.3" target="//@nodes.4">
+    <actions targetVariable="//@variables.0"/>
+    <actions type="ADD_ITEM" targetItem="//@items.0"/>
+  </edges>
+  <edges id="lighthouse_path_choice_1" label="Walk to the lighthouse cliff" source="//@nodes.4" target="//@nodes.5"/>
+  <edges id="lighthouse_decision_choice_1" label="Sacrifice Chloe" source="//@nodes.5" target="//@nodes.6"/>
+  <edges id="lighthouse_decision_choice_2" label="Sacrifice Arcadia Bay" source="//@nodes.5" target="//@nodes.7"/>
+</storyflow_pivot:NarrativeGraph>

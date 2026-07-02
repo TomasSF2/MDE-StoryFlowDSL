@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="T2-02 Missing Scene Id"
+    version="1">
+  <chapters name="Blackwell" order="1">
+    <!-- VIOLATION: this Scene has no 'id'. Scene.id is an EString with lowerBound=1. -->
+    <scenes name="dormitory" isStart="true">
+      <choices id="1" label="Go to class" target="//@chapters.0/@scenes.1"/>
+    </scenes>
+    <scenes id="2" name="ending_class" isEnding="true" endingType="NEUTRAL"/>
+  </chapters>
+</storyflow_hll:Story>

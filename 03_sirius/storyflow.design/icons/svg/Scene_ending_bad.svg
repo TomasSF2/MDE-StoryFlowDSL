@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Bad Ending">
+  <title>Bad Ending</title>
+  <rect width="64" height="64" fill="none"/>
+  <rect x="10" y="18" width="44" height="30" rx="5" fill="#FFE3E3" stroke="#862020" stroke-width="3"/>
+  <path d="M10 27h44M20 18l7 9M34 18l7 9" stroke="#862020" stroke-width="3" stroke-linecap="round"/>
+  <path d="M24 32l16 16M40 32l-16 16" stroke="#862020" stroke-width="4" stroke-linecap="round"/>
+</svg>

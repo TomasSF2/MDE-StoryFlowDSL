@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="The End of the World Party"
+    description="At the Vortex Club party Max searches backstage for proof and confronts Mr. Jefferson with it"
+    version="1">
+  <variables
+      name="truth_known"
+      type="BOOLEAN"
+      defaultValue="false"/>
+  <characters
+      id="max"
+      name="Max"
+      description="Max Caulfield"/>
+  <characters
+      id="jefferson"
+      name="Mr. Jefferson"
+      description="Mark Jefferson, photography teacher"/>
+  <items id="flashlight"
+      name="Phone Flashlight"
+      description="A phone light for the dark backstage"/>
+  <items id="hidden_drive"
+      name="Hidden Drive"
+      description="A drive holding the incriminating photo files"/>
+  <chapters
+      name="The Party"
+      order="1"
+      description="Music and strobe lights in the Blackwell gym">
+    <scenes
+        id="1"
+        name="gym_floor"
+        description="The Vortex Club party roars under the strobes. Max needs to get backstage unseen. Her phone could light the way, or she could chance the dark."
+        isStart="true"
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Turn on the phone flashlight"
+          target="//@chapters.0/@scenes.1">
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.0"/>
+      </choices>
+      <choices
+          id="2"
+          label="Slip into the dark backstage"
+          target="//@chapters.0/@scenes.1"/>
+    </scenes>
+    <scenes
+        id="2"
+        name="backstage"
+        description="Cables and stacked speakers swallow the music to a thud. A locked supply closet sits at the back; without light Max would never find the latch. A side exit glows nearby."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Search the locked supply closet"
+          target="//@chapters.0/@scenes.2">
+        <condition
+            expression="inventory contains flashlight"
+            referencedItems="//@items.0"/>
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.1"/>
+      </choices>
+      <choices
+          id="2"
+          label="Give up and take the side exit"
+          target="//@chapters.0/@scenes.3"/>
+    </scenes>
+    <scenes
+        id="3"
+        name="supply_closet"
+        description="Behind paint cans, taped under a shelf, Max finds a hidden drive. Plugging it into the laptop on the bench, the files load: photographs that prove exactly what Jefferson has been doing."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Open the files and see the truth"
+          target="//@chapters.1/@scenes.0">
+        <condition
+            expression="inventory contains hidden_drive"
+            referencedItems="//@items.1"/>
+        <effects
+            targetVar="//@variables.0"
+            value="true"/>
+      </choices>
+      <choices
+          id="2"
+          label="Leave the drive and back out"
+          target="//@chapters.0/@scenes.3"/>
+    </scenes>
+    <scenes
+        id="4"
+        name="slip_away"
+        description="Max melts back into the crowd and out the front doors. The party blurs behind her. Whatever is hidden here stays hidden, at least for tonight."
+        isEnding="true"
+        endingType="NEUTRAL"
+        characters="//@characters.0"/>
+  </chapters>
+  <chapters
+      name="The Confrontation"
+      order="2"
+      description="Face to face, with the proof between them">
+    <scenes
+        id="5"
+        name="confrontation"
+        description="Jefferson is waiting by the darkroom door, calm and smiling. He already knows what Max found. He asks, almost kindly, what she thinks she can do with it."
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Show the files as undeniable proof"
+          target="//@chapters.1/@scenes.1">
+        <condition
+            expression="truth_known == true"
+            referencedVars="//@variables.0"/>
+      </choices>
+      <choices
+          id="2"
+          label="Bluff that the police already have copies"
+          target="//@chapters.1/@scenes.1">
+        <dicerule
+            min="1"
+            max="6"
+            successThreshold="4"
+            onSuccess="//@chapters.1/@scenes.1"
+            onFailure="//@chapters.1/@scenes.2"/>
+      </choices>
+    </scenes>
+    <scenes
+        id="6"
+        name="ending_exposed"
+        description="By dawn the files are in the hands of people Jefferson cannot charm or threaten. The darkroom is sealed with tape, and Arcadia Bay finally learns the truth."
+        isEnding="true"
+        endingType="GOOD"
+        characters="//@characters.0"/>
+    <scenes
+        id="7"
+        name="ending_silenced"
+        description="Jefferson only shakes his head. The bluff doesn't hold, and the drive leaves Max's hand. By morning there's no sign she was ever backstage at all."
+        isEnding="true"
+        endingType="BAD"
+        characters="//@characters.0 //@characters.1"/>
+  </chapters>
+</storyflow_hll:Story>

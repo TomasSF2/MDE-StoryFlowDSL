@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frank's Dark Room</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      color: #1c1e21;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    #app {
+      max-width: 750px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      border: 1px solid #dadce0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    header { text-align: center; }
+    header h1 { color: #1a73e8; font-size: 1.8rem; margin-bottom: 5px; }
+    header p { color: #5f6368; font-size: 0.95rem; }
+
+    #scene-title { color: #202124; font-size: 1.3rem; margin-bottom: 12px; font-weight: 600; border-bottom: 2px solid #f1f3f4; padding-bottom: 8px; }
+    #scene-description { font-size: 1.05rem; color: #3c4043; min-height: 60px; }
+
+    #dice-banner {
+      display: none;
+      background: #e8f0fe;
+      color: #1967d2;
+      border: 1px solid #d2e3fc;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    #ending-card { display: none; text-align: center; }
+    #ending-card h2 { font-size: 1.5rem; margin-bottom: 8px; }
+    #ending-card.good h2 { color: #1e8e3e; }
+    #ending-card.bad h2 { color: #d93025; }
+    #ending-card.neutral h2 { color: #1a73e8; }
+    #ending-type-label { color: #5f6368; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    h3 { font-size: 0.9rem; color: #5f6368; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    #choices-list { display: flex; flex-direction: column; gap: 10px; }
+    .choice-btn {
+      background: #ffffff;
+      border: 1px solid #dadce0;
+      color: #3c4043;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 14px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+    .choice-btn:hover { background: #f8f9fa; border-color: #1a73e8; color: #1a73e8; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .choice-btn.dice-choice::after { content: ' 🎲'; }
+    .no-choices { color: #80868b; font-style: italic; }
+
+    #side-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    ul { list-style: none; }
+    li { padding: 6px 0; border-bottom: 1px solid #f1f3f4; color: #5f6368; font-size: 0.95rem; }
+    li:last-child { border-bottom: none; }
+    #inventory-list li::before { content: '• '; color: #1a73e8; font-weight: bold; }
+    #variables-list li span { color: #202124; font-weight: bold; float: right; }
+    .empty-label { color: #9aa0a6; font-style: italic; }
+
+    footer { text-align: center; margin-top: 10px; }
+    #restart-btn {
+      background: transparent;
+      border: 1px solid #dadce0;
+      color: #5f6368;
+      padding: 10px 24px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    #restart-btn:hover { background: #e8eaed; color: #202124; }
+
+    @media(max-width: 500px){ #side-panels{grid-template-columns: 1fr;} }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header class="card">
+    <h1>Frank's Dark Room</h1>
+    <p>Interactive Story Flow</p>
+  </header>
+
+  <div id="scene-card" class="card">
+    <div id="scene-title"></div>
+    <div id="scene-description"></div>
+  </div>
+
+  <div id="dice-banner"></div>
+
+  <div id="ending-card" class="card">
+    <h2 id="ending-title"></h2>
+    <div id="ending-type-label"></div>
+  </div>
+
+  <div id="choices-section" class="card">
+    <h3>What do you do?</h3>
+    <div id="choices-list"></div>
+  </div>
+
+  <div id="side-panels">
+    <div class="card" id="inventory-section">
+      <h3>Inventory</h3>
+      <ul id="inventory-list"></ul>
+    </div>
+    <div class="card" id="variables-section">
+      <h3>Flags</h3>
+      <ul id="variables-list"></ul>
+    </div>
+  </div>
+
+  <footer>
+    <button id="restart-btn" onclick="restartGame()">↺ Restart Game</button>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+const ITEMS = {
+  "photo_evidence" : "Photo evidence",
+  "rv_key" : "RV Key",
+};
+
+const SCENE_DESCRIPTIONS = {
+  "frank_negotiation": "Frank eyes you suspiciously across the hood of his RV. The key glints on his belt loop. How do you approach this?",
+  "chase_scene": "Frank bolts. His dog barks. You sprint through the junkyard, heart hammering.",
+  "dark_room_entrance": "A heavy door, paint peeling, a padlock. The smell of chemicals seeps from within. You need that key.",
+  "inside_dark_room": "Red light. Rows of photographs. Evidence of every victim. Your stomach turns as you reach for the stack.",
+  "lighthouse_path": "The cliff path winds upward through salt grass. Below, waves crash against the rocks of Arcadia Bay.",
+  "lighthouse_decision": "The storm tears at your hair. Two futures stretch before you, both unbearable. You must choose.",
+  "ending_sacrifice_chloe": "Chloe closes your hands around hers and smiles. Arcadia Bay endures. But at a cost you will carry forever.",
+  "ending_save_chloe": "The Bay floods. Homes, memories, lives, swept away. But Chloe is alive, alive in the passenger seat beside you.",
+};
+
+const SCENES = {
+  /* ── Node: frank_negotiation ── */
+  "frank_negotiation": {
+    id         : "frank_negotiation",
+    name       : "frank_negotiation",
+    isStart    : true,
+    isEnding   : false,
+    endingType : "NONE",
+    choices    : [
+      {
+        id        : "frank_negotiation_choice_1",
+        label     : "Negotiate peacefully",
+        target    : "dark_room_entrance",
+        condition : null,
+        diceRule  : null,
+        effects   : [
+          { 
+            type: "ADD_ITEM", 
+            targetVar: null, 
+            targetItem: "rv_key", 
+            value: "true" 
+          },
+        ]
+      },
+      {
+        id        : "frank_negotiation_choice_2",
+        label     : "Threaten Frank",
+        target    : "dark_room_entrance",
+        condition : null,
+        diceRule  : { min:1, max:6, threshold:4, onSuccess:"dark_room_entrance", onFailure:"chase_scene" },
+        effects   : [
+          { 
+            type: "ADD_ITEM", 
+            targetVar: null, 
+            targetItem: "rv_key", 
+            value: "true" 
+          },
+        ]
+      },
+    ]
+  },
+  /* ── Node: chase_scene ── */
+  "chase_scene": {
+    id         : "chase_scene",
+    name       : "chase_scene",
+    isStart    : false,
+    isEnding   : false,
+    endingType : "NONE",
+    choices    : [
+      {
+        id        : "chase_scene_choice_1",
+        label     : "Rewind time and try again",
+        target    : "frank_negotiation",
+        condition : null,
+        diceRule  : null,
+        effects   : [
+        ]
+      },
+      {
+        id        : "chase_scene_choice_2",
+        label     : "Give up on key",
+        target    : "lighthouse_path",
+        condition : null,
+        diceRule  : null,
+        effects   : [
+        ]
+      },
+    ]
+  },
+  /* ── Node: dark_room_entrance ── */
+  "dark_room_entrance": {
+    id         : "dark_room_entrance",
+    name       : "dark_room_entrance",
+    isStart    : false,
+    isEnding   : false,
+    endingType : "NONE",
+    choices    : [
+      {
+        id        : "dark_room_entrance_choice_1",
+        label     : "Enter the Dark Room",
+        target    : "inside_dark_room",
+        condition : "inventory contains rv_key",
+        diceRule  : null,
+        effects   : [
+        ]
+      },
+    ]
+  },
+  /* ── Node: inside_dark_room ── */
+  "inside_dark_room": {
+    id         : "inside_dark_room",
+    name       : "inside_dark_room",
+    isStart    : false,
+    isEnding   : false,
+    endingType : "NONE",
+    choices    : [
+      {
+        id        : "inside_dark_room_choice_1",
+        label     : "Collect photo evidence",
+        target    : "lighthouse_path",
+        condition : null,
+        diceRule  : null,
+        effects   : [
+          { 
+            type: "SET_VAR", 
+            targetVar: "dark_room_evidence", 
+            targetItem: null, 
+            value: "true" 
+          },
+          { 
+            type: "ADD_ITEM", 
+            targetVar: null, 
+            targetItem: "photo_evidence", 
+            value: "true" 
+          },
+        ]
+      },
+    ]
+  },
+  /* ── Node: lighthouse_path ── */
+  "lighthouse_path": {
+    id         : "lighthouse_path",
+    name       : "lighthouse_path",
+    isStart    : false,
+    isEnding   : false,
+    endingType : "NONE",
+    choices    : [
+      {
+        id        : "lighthouse_path_choice_1",
+        label     : "Walk to the lighthouse cliff",
+        target    : "lighthouse_decision",
+        condition : null,
+        diceRule  : null,
+        effects   : [
+        ]
+      },
+    ]
+  },
+  /* ── Node: lighthouse_decision ── */
+  "lighthouse_decision": {
+    id         : "lighthouse_decision",
+    name       : "lighthouse_decision",
+    isStart    : false,
+    isEnding   : false,
+    endingType : "NONE",
+    choices    : [
+      {
+        id        : "lighthouse_decision_choice_1",
+        label     : "Sacrifice Chloe",
+        target    : "ending_sacrifice_chloe",
+        condition : null,
+        diceRule  : null,
+        effects   : [
+        ]
+      },
+      {
+        id        : "lighthouse_decision_choice_2",
+        label     : "Sacrifice Arcadia Bay",
+        target    : "ending_save_chloe",
+        condition : null,
+        diceRule  : null,
+        effects   : [
+        ]
+      },
+    ]
+  },
+  /* ── Node: ending_sacrifice_chloe ── */
+  "ending_sacrifice_chloe": {
+    id         : "ending_sacrifice_chloe",
+    name       : "ending_sacrifice_chloe",
+    isStart    : false,
+    isEnding   : true,
+    endingType : "BAD",
+    choices    : [
+    ]
+  },
+  /* ── Node: ending_save_chloe ── */
+  "ending_save_chloe": {
+    id         : "ending_save_chloe",
+    name       : "ending_save_chloe",
+    isStart    : false,
+    isEnding   : true,
+    endingType : "NEUTRAL",
+    choices    : [
+    ]
+  },
+};
+
+function initialState() {
+  return {
+    currentSceneId : "frank_negotiation",
+    inventory      : [],
+    variables      : {
+      "dark_room_evidence" : false,
+    },
+    lastDiceResult : null
+  };
+}
+
+let state = initialState();
+
+function checkCondition(expr) {
+  if (!expr) return true;
+  const s = expr.trim();
+
+  if (s.startsWith("inventory contains")) {
+    const itemId = s.replace("inventory contains", "").trim();
+    return state.inventory.includes(itemId);
+  }
+
+  const eqMatch = s.match(/^(\w+)\s*={1,2}\s*(.+)$/);
+  if (eqMatch) {
+    const varName = eqMatch[1];
+    let   rhs     = eqMatch[2].trim().replace(/^["']|["']$/g, "");
+    const lhs     = state.variables[varName];
+    if (rhs === "true")  rhs = true;
+    if (rhs === "false") rhs = false;
+    return String(lhs) === String(rhs);
+  }
+
+  if (/^\w+$/.test(s)) return !!state.variables[s];
+  return true;
+}
+
+function applyEffects(effects) {
+  if (!effects || effects.length === 0) return;
+  for (const ef of effects) {
+    switch (ef.type) {
+      case "ADD_ITEM":
+        if (ef.targetItem && !state.inventory.includes(ef.targetItem)) {
+          state.inventory.push(ef.targetItem);
+        }
+        break;
+      case "REMOVE_ITEM":
+        if (ef.targetItem)
+          state.inventory = state.inventory.filter(i => i !== ef.targetItem);
+        break;
+      case "SET_VAR":
+        if (ef.targetVar !== null) {
+          let val = ef.value;
+          if (val === "true")  val = true;
+          if (val === "false") val = false;
+          state.variables[ef.targetVar] = val;
+        }
+        break;
+    }
+  }
+}
+
+function choose(choiceId) {
+  const scene  = SCENES[state.currentSceneId];
+  const choice = scene.choices.find(c => c.id === choiceId);
+  if (!choice) return;
+  if (!checkCondition(choice.condition)) return;
+
+  if (choice.diceRule) {
+    const dr   = choice.diceRule;
+    const roll = Math.floor(Math.random() * (dr.max - dr.min + 1)) + dr.min;
+    const won  = roll >= dr.threshold;
+    state.lastDiceResult = { roll, threshold: dr.threshold, won };
+    
+    // SÓ APLICA OS EFEITOS SE O DADO FOR UM SUCESSO!
+    if (won) {
+      applyEffects(choice.effects);
+    }
+    
+    navigateTo(won ? dr.onSuccess : dr.onFailure);
+  } else {
+    // SE NÃO HOUVER DADO, APLICA NORMALMENTE
+    state.lastDiceResult = null;
+    applyEffects(choice.effects);
+    navigateTo(choice.target);
+  }
+}
+
+function navigateTo(sceneId) {
+  if (!SCENES[sceneId]) { console.error("Scene not found:", sceneId); return; }
+  state.currentSceneId = sceneId;
+  renderScene();
+}
+
+function renderScene() {
+  const scene = SCENES[state.currentSceneId];
+
+  const banner = document.getElementById("dice-banner");
+  if (state.lastDiceResult) {
+    const dr = state.lastDiceResult;
+    banner.textContent = `Dice Rolled: ${dr.roll} (needed ${dr.threshold}) — ${dr.won ? "SUCCESS!" : "FAILURE…"}`;
+    banner.style.display = "block";
+  } else {
+    banner.style.display = "none";
+  }
+
+  const endingCard  = document.getElementById("ending-card");
+  const sceneCard   = document.getElementById("scene-card");
+  const choicesSect = document.getElementById("choices-section");
+
+  if (scene.isEnding) {
+    sceneCard.style.display   = "none";
+    choicesSect.style.display = "none";
+    endingCard.style.display  = "block";
+    endingCard.className = "card " + scene.endingType.toLowerCase();
+    const msgs = { GOOD:"✦ A Good Ending", BAD:"✦ A Bad Ending", NEUTRAL:"✦ An Neutral Ending", NONE:"✦ The End" };
+    document.getElementById("ending-title").textContent      = msgs[scene.endingType] || msgs.NONE;
+    document.getElementById("ending-type-label").textContent = `[ ${scene.name.replace(/_/g," ")} ]`;
+  } else {
+    sceneCard.style.display   = "block";
+    choicesSect.style.display = "block";
+    endingCard.style.display  = "none";
+    document.getElementById("scene-title").textContent       = scene.name.replace(/_/g," ").toUpperCase();
+    document.getElementById("scene-description").textContent = SCENE_DESCRIPTIONS[scene.id] || scene.name;
+
+    const list    = document.getElementById("choices-list");
+    list.innerHTML = "";
+    const visible = scene.choices.filter(c => checkCondition(c.condition));
+    if (visible.length === 0) {
+      list.innerHTML = '<p class="no-choices">No choices available. Perhaps you lack something…</p>';
+    } else {
+      for (const ch of visible) {
+        const btn = document.createElement("button");
+        btn.className   = "choice-btn" + (ch.diceRule ? " dice-choice" : "");
+        btn.textContent = ch.label;
+        btn.addEventListener("click", () => choose(ch.id));
+        list.appendChild(btn);
+      }
+    }
+  }
+
+  const invList = document.getElementById("inventory-list");
+  invList.innerHTML = "";
+  if (state.inventory.length === 0) {
+    invList.innerHTML = '<li class="empty-label">Empty</li>';
+  } else {
+    for (const id of state.inventory) {
+      const li = document.createElement("li");
+      li.textContent = ITEMS[id] || id;
+      invList.appendChild(li);
+    }
+  }
+
+  const varList = document.getElementById("variables-list");
+  varList.innerHTML = "";
+  for (const [name, val] of Object.entries(state.variables)) {
+    const li = document.createElement("li");
+    li.innerHTML = `${name}: <span>${val}</span>`;
+    varList.appendChild(li);
+  }
+}
+
+function restartGame() {
+  state = initialState();
+  document.getElementById("scene-card").style.display      = "block";
+  document.getElementById("choices-section").style.display = "block";
+  document.getElementById("ending-card").style.display     = "none";
+  document.getElementById("dice-banner").style.display     = "none";
+  renderScene();
+}
+
+renderScene();
+</script>
+</body>
+</html>

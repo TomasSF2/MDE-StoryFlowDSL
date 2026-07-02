@@ -1,0 +1,55 @@
+TEST T4-01 — Unreachable GOOD ending
+Category: T4 (Semantic failure / formal verification)
+
+WHAT THIS TEST VERIFIES
+  That the model checker detects a declared GOOD ending that no play-through can
+  ever reach. "ending_save_everyone" is reachable only through a choice guarded by
+  "inventory contains bunker_key", but bunker_key is never produced by any ADD_ITEM
+  effect, so the guard is never satisfiable. The alternative ending "ending_storm"
+  (BAD) is reachable, so there is no deadlock.
+
+WHY STATIC CHECKS MISS IT
+  Metamodel + every EVL constraint hold (one start, unique ids, endings terminal,
+  non-endings have a choice, no dice, no effects). No EVL rule checks reachability.
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... PASS
+  EVL ............... PASS (all constraints)
+  Verification ...... FAIL
+
+PROPERTIES CHECKED (NuSMV) AND EXPECTED RESULT
+  EF node = n_ending_save_everyone ......... expected FALSE  <-- the violation
+  EF is_good_ending ........................ expected FALSE  <-- no good ending reachable
+  AG (EF is_accepting) ..................... expected TRUE   (BAD ending always reachable)
+  AG (!is_accepting -> can_move) ........... expected TRUE   (no deadlock)
+  !(node = n_ending_save_everyone & !has_bunker_key) ... TRUE
+
+EXPECTED RESULT
+  NuSMV reports EF node = n_ending_save_everyone (and EF is_good_ending) FALSE.
+  Maps to StoryFlow property: "All declared endings are reachable from the start."
+
+EVIDENCE 
+  -- specification EF node = n_ending_save_everyone  is false
+  -- as demonstrated by the following execution sequence
+  Trace Description: CTL Counterexample
+  Trace Type: Counterexample
+    -> State: 1.1 <-
+      node = n_diner
+      has_bunker_key = FALSE
+      can_move = TRUE
+      is_good_ending = FALSE
+      is_accepting = FALSE
+  -- specification EF node = n_ending_storm  is true
+  -- specification AG (!is_accepting -> can_move)  is true
+  -- specification AG (EF is_accepting)  is true
+  -- specification EF is_good_ending  is false
+  -- as demonstrated by the following execution sequence
+  Trace Description: CTL Counterexample
+  Trace Type: Counterexample
+    -> State: 2.1 <-
+      node = n_diner
+      has_bunker_key = FALSE
+      can_move = TRUE
+      is_good_ending = FALSE
+      is_accepting = FALSE
+  -- invariant !(node = n_ending_save_everyone & !has_bunker_key)  is true

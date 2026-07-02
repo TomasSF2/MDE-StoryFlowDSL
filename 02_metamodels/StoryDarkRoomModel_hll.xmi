@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="Frank's Dark Room"
+    description="Max gets Frank's RV key and enters the Dark Room"
+    version="1">
+  <variables
+      name="dark_room_evidence"
+      type="BOOLEAN"
+      defaultValue="false"/>
+  <characters
+      id="max"
+      name="Max"
+      description="Max"/>
+  <characters
+      id="chloe"
+      name="Chloe"
+      description="Chloe"/>
+  <characters
+      id="frank"
+      name="Frank"
+      description="Frank, the owner of the RV"/>
+  <items id="rv_key"
+      name="RV Key"
+      description="Frank's RV Key"/>
+  <items id="photo_evidence"
+      name="Photo evidence"
+      description="Photo Evidence"/>
+  <chapters
+      name="Negotiation"
+      order="1"
+      description="Frank's RV negotiation">
+    <scenes
+        id="1"
+        name="frank_negotiation"
+        description="Frank eyes you suspiciously across the hood of his RV. The key glints on his belt loop. How do you approach this?"
+        isStart="true"
+        characters="//@characters.0 //@characters.2">
+      <choices
+          id="1"
+          label="Negotiate peacefully"
+          target="//@chapters.0/@scenes.2">
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.0"/>
+      </choices>
+      <choices
+          id="2"
+          label="Threaten Frank"
+          target="//@chapters.0/@scenes.2">
+        <dicerule
+            min="1"
+            max="6"
+            successThreshold="4"
+            onSuccess="//@chapters.0/@scenes.2"
+            onFailure="//@chapters.0/@scenes.1"/>
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.0"
+            value=""/>
+      </choices>
+    </scenes>
+    <scenes
+        id="2"
+        name="chase_scene"
+        description="Frank bolts. His dog barks. You sprint through the junkyard, heart hammering."
+        characters="//@characters.0 //@characters.2">
+      <choices
+          id="1"
+          label="Rewind time and try again"
+          target="//@chapters.0/@scenes.0"/>
+      <choices
+          id="2"
+          label="Give up on key"
+          target="//@chapters.1/@scenes.0"/>
+    </scenes>
+    <scenes
+        id="3"
+        name="dark_room_entrance"
+        description="A heavy door, paint peeling, a padlock. The smell of chemicals seeps from within. You need that key."
+        characters="//@characters.0 //@characters.2">
+      <choices
+          id="1"
+          label="Enter the Dark Room"
+          target="//@chapters.0/@scenes.3">
+        <condition
+            expression="inventory contains rv_key"
+            referencedItems="//@items.0"/>
+      </choices>
+    </scenes>
+    <scenes
+        id="4"
+        name="inside_dark_room"
+        description="Red light. Rows of photographs. Evidence of every victim. Your stomach turns as you reach for the stack."
+        characters="//@characters.0 //@characters.1 //@characters.2">
+      <choices
+          id="1"
+          label="Collect photo evidence"
+          target="//@chapters.1/@scenes.0">
+        <effects
+            targetVar="//@variables.0"
+            value="true"/>
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.1"/>
+      </choices>
+    </scenes>
+  </chapters>
+  <chapters
+      name="Lighthouse final decision"
+      order="2"
+      description="Lighthouse final decision">
+    <scenes
+        id="5"
+        name="lighthouse_path"
+        description="The cliff path winds upward through salt grass. Below, waves crash against the rocks of Arcadia Bay."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Walk to the lighthouse cliff"
+          target="//@chapters.1/@scenes.1"/>
+    </scenes>
+    <scenes
+        id="6"
+        name="lighthouse_decision"
+        description="The storm tears at your hair. Two futures stretch before you, both unbearable. You must choose."
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Sacrifice Chloe"
+          target="//@chapters.1/@scenes.2"/>
+      <choices
+          id="2"
+          label="Sacrifice Arcadia Bay"
+          target="//@chapters.1/@scenes.3"/>
+    </scenes>
+    <scenes
+        id="7"
+        name="ending_sacrifice_chloe"
+        description="Chloe closes your hands around hers and smiles. Arcadia Bay endures. But at a cost you will carry forever."
+        isEnding="true"
+        endingType="BAD"
+        characters="//@characters.0 //@characters.1"/>
+    <scenes
+        id="8"
+        name="ending_save_chloe"
+        description="The Bay floods. Homes, memories, lives, swept away. But Chloe is alive, alive in the passenger seat beside you."
+        isEnding="true"
+        endingType="GOOD"
+        characters="//@characters.0 //@characters.1"/>
+  </chapters>
+</storyflow_hll:Story>

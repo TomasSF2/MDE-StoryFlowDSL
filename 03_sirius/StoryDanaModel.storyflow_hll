@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:storyflow_hll="http://www.example.org/storyflow_hll" name="StoryDana" version="1.0">
+  <variables name="found_note" defaultValue="false"/>
+  <variables name="juliet_helped" defaultValue="false"/>
+  <characters id="max" name="Max" description="Max"/>
+  <characters id="dana" name="Dana" description="Dana"/>
+  <characters id="juliet" name="Juliet" description="Juliet"/>
+  <items id="dana_note" name="Dana's Note" description="Dana's Note"/>
+  <chapters name="Dormitory Corridor" order="1">
+    <scenes id="dorm_corridor" name="Dormitory Corridor" description="The corridor hums under flickering fluorescents. Dana's door waits at the far end; behind another, you can hear Juliet crying. Where do you go first?" isStart="true" endingType="NEUTRAL" characters="//@characters.0">
+      <choices id="choice_scene_1_to_scene_2" label="Go to Dana's Room" target="//@chapters.0/@scenes.1"/>
+      <choices id="choice_scene_1_to_scene_3" label="Confront Juliet" target="//@chapters.0/@scenes.2">
+        <condition expression="found_note == true" referencedItems="//@items.0"/>
+      </choices>
+      <choices id="choice_scene_1_to_scene_4" label="go to Hallway Exit" target="//@chapters.0/@scenes.3"/>
+    </scenes>
+    <scenes id="dana_room" name="Dana's Room" description="&quot;Dana's room is dark, the bed unmade, drawers left open. A folded note sits on the desk with your name across it. The handwriting is shaky. Do you dare read it?" characters="//@characters.0">
+      <choices id="choice_scene_2_to_scene_1" label="Read note" target="//@chapters.0/@scenes.0">
+        <effects targetVar="//@variables.0" value="true"/>
+        <effects type="ADD_ITEM" targetItem="//@items.0" value="dana_note"/>
+      </choices>
+      <choices id="choice_scene_2_to_scene_4" label="go to Hallway Exit" target="//@chapters.0/@scenes.3"/>
+      <choices id="choice_scene_2_to_scene_1" label="Leave note without reading" target="//@chapters.0/@scenes.0"/>
+    </scenes>
+    <scenes id="juliet_room" name="Juliet Room Confrontation" description="Juliet's eyes are swollen, her phone face-down on the bed. The whole campus is talking and none of it is true. The note in your pocket could clear her name. She stares at you, waiting." characters="//@characters.2 //@characters.0">
+      <choices id="choice_scene_3_to_scene_4" label="Help Juliet Post a Refutation" target="//@chapters.0/@scenes.3">
+        <effects targetVar="//@variables.1" value="true"/>
+      </choices>
+      <choices id="choice_scene_3_to_scene_4" label="Leave Juliet to handle it herself" target="//@chapters.0/@scenes.3"/>
+    </scenes>
+    <scenes id="hallway_exit" name="Hallway Exit" description="The door clicks shut behind you. The hallway is empty now, the drama sealed away. You walk toward the stairs, the dorm settling back into silence." isEnding="true" endingType="NEUTRAL" characters="//@characters.0"/>
+  </chapters>
+</storyflow_hll:Story>

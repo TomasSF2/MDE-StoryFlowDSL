@@ -1,0 +1,24 @@
+TEST T2-01 — Missing mandatory Choice.target
+Category: T2 (Metamodel failure)
+
+WHAT THIS TEST VERIFIES
+  That the EMF validator rejects a model whose Choice has no 'target'.
+  Ecore rule: Choice.target is an EReference with lowerBound=1 (mandatory 1..1).
+  Here the only Choice ("Leave the diner") declares no target reference.
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... FAIL  (rejected here, before anything else runs)
+  EVL ............... not reached
+  Verification ...... not reached
+
+EXPECTED RESULT
+  EMF Diagnostician reports a required-feature error, e.g.
+  "The required feature 'target' of 'Choice ...' must be set."
+
+EVIDENCE
+Description: The required feature 'target' of 'Choice 1' must be set
+Resource: T2_01_missing_choice_target.xmi
+Path: /StoryFlow/model
+Location: Unknown
+Type: EMF Problem
+				

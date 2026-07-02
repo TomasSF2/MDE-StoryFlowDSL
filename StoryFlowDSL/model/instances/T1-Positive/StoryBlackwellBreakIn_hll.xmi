@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="The Blackwell Break-In"
+    description="Max and Chloe break into Blackwell at night to find Rachel Amber's file, needing both the door code and a keycard"
+    version="1">
+  <variables
+      name="knows_passcode"
+      type="BOOLEAN"
+      defaultValue="false"/>
+  <variables
+      name="alarm_tripped"
+      type="BOOLEAN"
+      defaultValue="false"/>
+  <characters
+      id="max"
+      name="Max"
+      description="Max Caulfield"/>
+  <characters
+      id="chloe"
+      name="Chloe"
+      description="Chloe Price"/>
+  <characters
+      id="david"
+      name="David"
+      description="David Madsen, head of security"/>
+  <items id="keycard"
+      name="Security Keycard"
+      description="A keycard that opens the records cabinet"/>
+  <chapters
+      name="After Hours"
+      order="1"
+      description="Sneaking through the dark halls of Blackwell Academy">
+    <scenes
+        id="1"
+        name="main_entrance"
+        description="The school is silent, lit only by exit signs. A duty roster is pinned by the door, and David's handwriting includes the office code in the margin. The main corridor runs deeper in."
+        isStart="true"
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Read the duty roster and memorize the code"
+          target="//@chapters.0/@scenes.1">
+        <effects
+            targetVar="//@variables.0"
+            value="true"/>
+      </choices>
+      <choices
+          id="2"
+          label="Hurry past it into the corridor"
+          target="//@chapters.0/@scenes.1"/>
+    </scenes>
+    <scenes
+        id="2"
+        name="corridor"
+        description="A junction of lockers and trophy cases. The records room is down the west hall; the security office sits to the east, its door slightly ajar."
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Head west to the records room"
+          target="//@chapters.0/@scenes.2"/>
+      <choices
+          id="2"
+          label="Head east to the security office"
+          target="//@chapters.0/@scenes.3"/>
+    </scenes>
+    <scenes
+        id="3"
+        name="records_room"
+        description="Rows of locked cabinets. Rachel's file is in the sealed one, and opening it needs both the office code David scribbled down and a security keycard."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Unlock the sealed cabinet"
+          target="//@chapters.1/@scenes.0">
+        <condition
+            expression="knows_passcode and keycard in inventory"
+            referencedVars="//@variables.0"
+            referencedItems="//@items.0"/>
+      </choices>
+      <choices
+          id="2"
+          label="Double back to the corridor"
+          target="//@chapters.0/@scenes.1"/>
+    </scenes>
+    <scenes
+        id="4"
+        name="security_office"
+        description="Monitors flicker over David's desk. A keycard lies beside the coffee mug, but the cabinet behind it is wired to a silent alarm."
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Quietly pocket the keycard"
+          target="//@chapters.0/@scenes.2">
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.0"/>
+      </choices>
+      <choices
+          id="2"
+          label="Pry the desk drawer and trip the alarm"
+          target="//@chapters.1/@scenes.1">
+        <effects
+            targetVar="//@variables.1"
+            value="true"/>
+      </choices>
+    </scenes>
+  </chapters>
+  <chapters
+      name="The Truth"
+      order="2"
+      description="What they find, and whether they get out">
+    <scenes
+        id="5"
+        name="sealed_cabinet"
+        description="The cabinet clicks open. Inside is everything: Rachel's file, the photos, the dates. Proof of what really happened in Arcadia Bay."
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Take the file and slip out the back"
+          target="//@chapters.1/@scenes.2"/>
+    </scenes>
+    <scenes
+        id="6"
+        name="caught_by_security"
+        description="The alarm brings David at a run, flashlight blazing down the hall. There is nowhere to hide and no time to rewind far enough. The file stays locked away."
+        isEnding="true"
+        endingType="BAD"
+        characters="//@characters.0 //@characters.2"/>
+    <scenes
+        id="7"
+        name="ending_proof"
+        description="Out through the loading dock and into Chloe's truck. The file is on the dashboard between them. Whatever happens next, the truth about Rachel is finally in their hands."
+        isEnding="true"
+        endingType="GOOD"
+        characters="//@characters.0 //@characters.1"/>
+  </chapters>
+</storyflow_hll:Story>

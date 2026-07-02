@@ -1,0 +1,46 @@
+TEST T1-04 — The End of the World Party
+Category: T1 (Positive) — a valid model that must traverse the COMPLETE pipeline.
+Success criterion (spec Section 6.1):
+  conform to metamodel -> pass EVL -> transform via ETL -> formal verification
+  passes -> generate artifacts.
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... PASS
+  EVL ............... PASS (all 9 constraints)
+  ETL (M2M) ......... PASS (produces a well-formed pivot NarrativeGraph)
+  Verification ...... PASS (all properties below hold; no counterexample)
+  EGL (M2T) ......... PASS (generates artifacts, e.g. HTML/JS story runner)
+
+NuSMV naming: n_<scene>, has_<item>, is_accepting, is_good_ending, can_move.
+
+WHAT THIS TEST VERIFIES
+  Max gathers proof backstage at the Vortex Club party and confronts Jefferson.
+  Scenes: gym_floor (start) -> backstage -> supply_closet -> confrontation ->
+  ending_exposed (GOOD); a dice bluff at confrontation can reach ending_silenced (BAD);
+  backing out leads to slip_away (NEUTRAL).
+  Mechanics exercised: a CHAINED gate (flashlight -> grants hidden_drive -> hidden_drive
+  gate -> sets truth_known -> truth_known gate), ADD_ITEM and SET_VARIABLE effects, a
+  dice roll, three ending types.
+
+PROPERTIES CHECKED (NuSMV) AND EXPECTED RESULT
+  EF node = n_ending_exposed ................. TRUE  (GOOD ending reachable)
+  EF node = n_ending_silenced ................ TRUE  (BAD ending reachable)
+  EF node = n_slip_away ...................... TRUE  (NEUTRAL ending reachable)
+  EF is_good_ending .......................... TRUE
+  AG (EF is_accepting) ....................... TRUE  (no softlock)
+  AG (!is_accepting -> can_move) ............. TRUE  (no deadlock)
+  G (node = n_supply_closet -> has_flashlight) ... TRUE  (closet only reached with the flashlight)
+  G (node = n_confrontation -> truth_known) ...... TRUE  (confrontation only after the truth is found)
+
+EXPECTED RESULT
+  All constraints and properties hold. No counterexample. Artifacts generate successfully.
+
+EVIDENCE 
+  -- specification EF node = n_slip_away  is true
+  -- specification EF node = n_ending_exposed  is true
+  -- specification EF node = n_ending_silenced  is true
+  -- specification AG (!is_accepting -> can_move)  is true
+  -- specification AG (EF is_accepting)  is true
+  -- specification EF is_good_ending  is true
+  -- invariant !(node = n_supply_closet & !has_flashlight)  is true
+  -- invariant !(node = n_confrontation & !has_hidden_drive)  is true

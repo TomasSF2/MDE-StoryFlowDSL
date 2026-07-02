@@ -1,0 +1,11 @@
+rule Story2HTML
+    transform ng : Pivot!NarrativeGraph {
+    template : "generate_story.egl"
+    target : ng.pivotFileBaseName() + ".html"
+}
+
+operation Any pivotFileBaseName() : String {
+    // Uses the EMF resource URI of the loaded pivot .xmi.
+    // Example: StoryDarkRoomModel_pivot.xmi -> StoryDarkRoomModel_pivot.smv
+    return self.eResource().getURI().trimFileExtension().lastSegment();
+}

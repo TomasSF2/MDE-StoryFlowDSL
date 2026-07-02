@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Choice">
+  <title>Choice</title>
+  <rect width="64" height="64" fill="none"/>
+  <circle cx="32" cy="15" r="7" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="3"/>
+  <circle cx="17" cy="49" r="7" fill="#22B8CF" stroke="#2B2B2B" stroke-width="3"/>
+  <circle cx="47" cy="49" r="7" fill="#22B8CF" stroke="#2B2B2B" stroke-width="3"/>
+  <path d="M32 22v8M32 30c-9 0-15 7-15 14M32 30c9 0 15 7 15 14" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+</svg>

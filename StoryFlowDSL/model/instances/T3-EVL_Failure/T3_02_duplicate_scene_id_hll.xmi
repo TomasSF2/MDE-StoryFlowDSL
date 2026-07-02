@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="T3-02 Duplicate Scene Id"
+    version="1">
+  <chapters name="Arcadia Bay" order="1">
+    <scenes id="1" name="cliff" isStart="true">
+      <choices id="1" label="Walk to the lighthouse" target="//@chapters.0/@scenes.1"/>
+    </scenes>
+    <!-- VIOLATION: id "1" is reused (UniqueSceneId checks Scene.allInstances). -->
+    <scenes id="1" name="lighthouse" isEnding="false">
+      <choices id="1" label="Climb to the top" target="//@chapters.0/@scenes.2"/>
+    </scenes>
+    <scenes id="3" name="ending_top" isEnding="true" endingType="GOOD"/>
+  </chapters>
+</storyflow_hll:Story>

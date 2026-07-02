@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="T4-01 Unreachable Good Ending"
+    description="The save-everyone ending is locked behind a key that exists nowhere in the story"
+    version="1">
+  <characters id="max" name="Max"/>
+  <characters id="chloe" name="Chloe"/>
+  <items id="bunker_key" name="Bunker Key" description="Never granted anywhere"/>
+  <chapters name="The Storm" order="1">
+    <scenes id="1" name="diner" isStart="true" characters="//@characters.0">
+      <choices id="1" label="Drive out to the cliff" target="//@chapters.0/@scenes.1"/>
+    </scenes>
+    <scenes id="2" name="cliff" characters="//@characters.0 //@characters.1">
+      <choices id="1" label="Unlock the storm bunker and shelter everyone"
+          target="//@chapters.0/@scenes.2">
+        <condition expression="inventory contains bunker_key" referencedItems="//@items.0"/>
+      </choices>
+      <choices id="2" label="Stand on the cliff and watch the tornado"
+          target="//@chapters.0/@scenes.3"/>
+    </scenes>
+    <scenes id="3" name="ending_save_everyone" isEnding="true" endingType="GOOD"
+        characters="//@characters.0 //@characters.1"/>
+    <scenes id="4" name="ending_storm" isEnding="true" endingType="BAD"
+        characters="//@characters.0"/>
+  </chapters>
+</storyflow_hll:Story>

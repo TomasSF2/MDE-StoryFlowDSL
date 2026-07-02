@@ -1,0 +1,953 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description:Group xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:description="http://www.eclipse.org/sirius/description/1.1.0"
+    xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0"
+    xmlns:properties="http://www.eclipse.org/sirius/properties/1.0.0"
+    xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0"
+    xmlns:tool="http://www.eclipse.org/sirius/diagram/description/tool/1.1.0"
+    xmlns:tool_1="http://www.eclipse.org/sirius/description/tool/1.1.0"
+    name="storyflow" version="12.0.0.2017041100">
+
+  <ownedViewpoints name="StoryFlow" label="StoryFlow"
+      modelFileExtension="storyflow_hll">
+    <ownedRepresentations xsi:type="description_1:DiagramDescription"
+        name="StoryDiagram"
+        label="Story Diagram"
+        titleExpression="aql:'Story - ' + self.name"
+        domainClass="storyflow_hll::Story"
+        enablePopupBars="true">
+      <metamodel href="http://www.example.org/storyflow_hll#/"/>
+      <defaultLayer name="Default">
+
+        <!-- ============================================================== -->
+        <!-- CONTAINER MAPPINGS                                              -->
+        <!-- ============================================================== -->
+
+        <!-- ChapterContainer: one box per Chapter, holds Scene sub-nodes -->
+        <containerMappings name="ChapterContainer"
+            semanticCandidatesExpression="aql:self.chapters"
+            domainClass="storyflow_hll::Chapter"
+            labelExpression="aql:'Chapter ' + self.order.toString() + ' - ' + self.name">
+
+          <!-- Scene sub-node: SVG icon switches by start / ending / endingType -->
+          <subNodeMappings name="Scene"
+              semanticCandidatesExpression="feature:scenes"
+              domainClass="storyflow_hll::Scene">
+            <style xsi:type="style:WorkspaceImageDescription"
+                labelSize="12"
+                showIcon="false"
+                labelExpression="aql:self.name + if self.isEnding then '\n[' + self.endingType.toString() + ']' else '' endif"
+                sizeComputationExpression="-1"
+                resizeKind="NSEW"
+                workspacePath="/storyflow.design/icons/svg/Scene.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+            <conditionnalStyles predicateExpression="aql:self.isStart">
+              <style xsi:type="style:WorkspaceImageDescription"
+                  labelSize="12"
+                  showIcon="false"
+                  labelExpression="aql:self.name + ' (start)'"
+                  sizeComputationExpression="-1"
+                  resizeKind="NSEW"
+                  workspacePath="/storyflow.design/icons/svg/Scene_start.svg">
+                <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </style>
+            </conditionnalStyles>
+            <conditionnalStyles predicateExpression="aql:self.isEnding and self.endingType.toString() = 'GOOD'">
+              <style xsi:type="style:WorkspaceImageDescription"
+                  labelSize="12"
+                  showIcon="false"
+                  labelExpression="aql:self.name + '\n[GOOD]'"
+                  sizeComputationExpression="-1"
+                  resizeKind="NSEW"
+                  workspacePath="/storyflow.design/icons/svg/Scene_ending_good.svg">
+                <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_green']"/>
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_green']"/>
+              </style>
+            </conditionnalStyles>
+            <conditionnalStyles predicateExpression="aql:self.isEnding and self.endingType.toString() = 'BAD'">
+              <style xsi:type="style:WorkspaceImageDescription"
+                  labelSize="12"
+                  showIcon="false"
+                  labelExpression="aql:self.name + '\n[BAD]'"
+                  sizeComputationExpression="-1"
+                  resizeKind="NSEW"
+                  workspacePath="/storyflow.design/icons/svg/Scene_ending_bad.svg">
+                <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_red']"/>
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_red']"/>
+              </style>
+            </conditionnalStyles>
+            <conditionnalStyles predicateExpression="aql:self.isEnding and self.endingType.toString() = 'NEUTRAL'">
+              <style xsi:type="style:WorkspaceImageDescription"
+                  labelSize="12"
+                  showIcon="false"
+                  labelExpression="aql:self.name + '\n[NEUTRAL]'"
+                  sizeComputationExpression="-1"
+                  resizeKind="NSEW"
+                  workspacePath="/storyflow.design/icons/svg/Scene_ending_neutral.svg">
+                <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_gray']"/>
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_gray']"/>
+              </style>
+            </conditionnalStyles>
+          </subNodeMappings>
+
+          <!-- ConditionNode: rendered as a diagram node, one per Choice
+               whose condition is set. Lives inside the same Chapter as the
+               choices' source scenes. -->
+          <subNodeMappings name="ConditionNode"
+              semanticCandidatesExpression="aql:self.scenes.choices->select(c | c.condition &lt;> null).condition"
+              domainClass="storyflow_hll::Condition">
+            <style xsi:type="style:WorkspaceImageDescription"
+                labelSize="11"
+                showIcon="false"
+                labelExpression="aql:'[' + self.expression + ']'"
+                sizeComputationExpression="-1"
+                resizeKind="NSEW"
+                workspacePath="/storyflow.design/icons/svg/Condition.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='orange']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='orange']"/>
+            </style>
+          </subNodeMappings>
+
+          <!-- DiceRuleNode: rendered as a diagram node, one per Choice
+               whose dicerule is set. Branches via onSuccess / onFailure. -->
+          <subNodeMappings name="DiceRuleNode"
+              semanticCandidatesExpression="aql:self.scenes.choices->select(c | c.dicerule &lt;> null).dicerule"
+              domainClass="storyflow_hll::DiceRule">
+            <style xsi:type="style:WorkspaceImageDescription"
+                labelSize="11"
+                showIcon="false"
+                labelExpression="aql:'d' + self.min.toString() + '-' + self.max.toString() + '\u2265' + self.successThreshold.toString()"
+                sizeComputationExpression="-1"
+                resizeKind="NSEW"
+                workspacePath="/storyflow.design/icons/svg/DiceRule.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='purple']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='purple']"/>
+            </style>
+          </subNodeMappings>
+
+          <!-- EffectNode: rendered as a diagram node, one per Effect on any
+               Choice in the chapter. Label encodes type + target + value. -->
+          <subNodeMappings name="EffectNode"
+              semanticCandidatesExpression="aql:self.scenes.choices.effects"
+              domainClass="storyflow_hll::Effect">
+            <style xsi:type="style:WorkspaceImageDescription"
+                labelSize="11"
+                showIcon="false"
+                labelExpression="aql:if self.type.toString() = 'ADD_ITEM' then '+' + (if self.targetItem &lt;> null then self.targetItem.name else self.value endif) else if self.type.toString() = 'REMOVE_ITEM' then '-' + (if self.targetItem &lt;> null then self.targetItem.name else self.value endif) else (if self.targetVar &lt;> null then self.targetVar.name else '?' endif) + ' := ' + self.value endif endif"
+                sizeComputationExpression="-1"
+                resizeKind="NSEW"
+                workspacePath="/storyflow.design/icons/svg/Effect.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_gray']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_gray']"/>
+            </style>
+          </subNodeMappings>
+
+          <style xsi:type="style:FlatContainerStyleDescription"
+              borderSizeComputationExpression="1"
+              labelSize="12">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_blue']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_blue']"/>
+            <backgroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+            <foregroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_blue']"/>
+            <labelBorderStyle href="environment:/viewpoint#//@labelBorderStyles/@labelBorderStyleDescriptions.0"/>
+          </style>
+        </containerMappings>
+
+        <!-- ResourcesContainer: a single box per Story; holds globals -->
+        <containerMappings name="ResourcesContainer"
+            semanticCandidatesExpression="aql:Sequence{self}"
+            domainClass="storyflow_hll::Story"
+            labelExpression="aql:'Resources'">
+
+          <subNodeMappings name="Variable"
+              semanticCandidatesExpression="feature:variables"
+              domainClass="storyflow_hll::Variable">
+            <style xsi:type="style:WorkspaceImageDescription"
+                labelSize="11"
+                showIcon="false"
+                labelExpression="aql:self.name + ' : ' + self.type.toString() + (if self.defaultValue &lt;> null and self.defaultValue.size() &gt; 0 then ' = ' + self.defaultValue else '' endif)"
+                sizeComputationExpression="-1"
+                resizeKind="NSEW"
+                workspacePath="/storyflow.design/icons/svg/Variable.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+          </subNodeMappings>
+
+          <subNodeMappings name="Character"
+              semanticCandidatesExpression="feature:characters"
+              domainClass="storyflow_hll::Character">
+            <style xsi:type="style:WorkspaceImageDescription"
+                labelSize="11"
+                showIcon="false"
+                labelExpression="aql:self.name"
+                sizeComputationExpression="-1"
+                resizeKind="NSEW"
+                workspacePath="/storyflow.design/icons/svg/Character.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+          </subNodeMappings>
+
+          <subNodeMappings name="InventoryItem"
+              semanticCandidatesExpression="feature:items"
+              domainClass="storyflow_hll::InventoryItem">
+            <style xsi:type="style:WorkspaceImageDescription"
+                labelSize="11"
+                showIcon="false"
+                labelExpression="aql:self.name"
+                sizeComputationExpression="-1"
+                resizeKind="NSEW"
+                workspacePath="/storyflow.design/icons/svg/InventoryItem.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+          </subNodeMappings>
+
+          <style xsi:type="style:FlatContainerStyleDescription"
+              borderSizeComputationExpression="1"
+              labelSize="12">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_yellow']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_yellow']"/>
+            <backgroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_yellow']"/>
+            <foregroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='yellow']"/>
+            <labelBorderStyle href="environment:/viewpoint#//@labelBorderStyles/@labelBorderStyleDescriptions.0"/>
+          </style>
+        </containerMappings>
+
+        <!-- ============================================================== -->
+        <!-- EDGE MAPPINGS                                                   -->
+        <!-- ============================================================== -->
+
+        <!-- ChoiceEdge: plain Scene -> Scene direct edge. Used ONLY when the
+             Choice has no condition, no dicerule and no effects. Choices that
+             carry any decoration are rendered as a chain of intermediate nodes
+             via ChoiceFirstDecorationEdge / ConditionToNextEdge /
+             EffectToNextEdge / DiceSuccessEdge / DiceFailureEdge below.
+             Keeping the name "ChoiceEdge" so the CreateChoice palette tool
+             below still binds correctly. -->
+        <edgeMappings name="ChoiceEdge"
+            semanticCandidatesExpression="aql:self.chapters.scenes.choices->select(c | c.condition = null and c.dicerule = null and c.effects->isEmpty())"
+            sourceMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene']"
+            targetMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene']"
+            targetFinderExpression="aql:self.target"
+            sourceFinderExpression="aql:self.eContainer()"
+            domainClass="storyflow_hll::Choice"
+            useDomainElement="true">
+          <style routingStyle="manhattan" sizeComputationExpression="2" lineStyle="solid"
+              targetArrow="InputArrow">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='gray']"/>
+            <centerLabelStyleDescription labelSize="11" labelExpression="aql:self.label">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+
+        <!-- ChoiceFirstDecorationEdge: Scene -> first decoration node of a
+             Choice that has at least one decoration. The decoration chain
+             order is fixed: condition -> effects (in list order) -> dicerule
+             -> target. This edge carries the player-visible choice label,
+             since it is the actual decision point the player sees. -->
+        <edgeMappings name="ChoiceFirstDecorationEdge"
+            semanticCandidatesExpression="aql:self.chapters.scenes.choices->select(c | c.condition &lt;> null or c.effects->notEmpty() or c.dicerule &lt;> null)"
+            sourceMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene']"
+            targetMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='ConditionNode'] //@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='EffectNode'] //@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='DiceRuleNode']"
+            sourceFinderExpression="aql:self.eContainer()"
+            targetFinderExpression="aql:if self.condition &lt;> null then self.condition else if self.effects->notEmpty() then self.effects->first() else self.dicerule endif endif"
+            domainClass="storyflow_hll::Choice"
+            useDomainElement="true">
+          <style routingStyle="manhattan" sizeComputationExpression="2" lineStyle="solid"
+              targetArrow="InputArrow">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='gray']"/>
+            <centerLabelStyleDescription labelSize="11" labelExpression="aql:self.label">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+
+        <!-- ConditionToNextEdge: Condition -> next step in the chain.
+             Next step is the first Effect if any, else the DiceRule if any,
+             else the Choice's target Scene. (Falsity is implicit: the choice
+             simply is not offered to the player.) -->
+        <edgeMappings name="ConditionToNextEdge"
+            semanticCandidatesExpression="aql:self.chapters.scenes.choices->select(c | c.condition &lt;> null).condition"
+            sourceMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='ConditionNode']"
+            targetMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene'] //@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='EffectNode'] //@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='DiceRuleNode']"
+            sourceFinderExpression="aql:self"
+            targetFinderExpression="aql:if self.eContainer().effects->notEmpty() then self.eContainer().effects->first() else if self.eContainer().dicerule &lt;> null then self.eContainer().dicerule else self.eContainer().target endif endif"
+            domainClass="storyflow_hll::Condition"
+            useDomainElement="true">
+          <style routingStyle="manhattan" sizeComputationExpression="2" lineStyle="solid"
+              targetArrow="InputArrow">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='orange']"/>
+            <centerLabelStyleDescription labelSize="10" labelExpression="aql:'true'">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='orange']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+
+        <!-- EffectToNextEdge: Effect -> next step in the chain. Next step is
+             the next Effect in Choice.effects list order, else the DiceRule
+             if any, else the Choice's target Scene. AQL "indexOf" is 1-based
+             and "at" is 1-based. -->
+        <edgeMappings name="EffectToNextEdge"
+            semanticCandidatesExpression="aql:self.chapters.scenes.choices.effects"
+            sourceMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='EffectNode']"
+            targetMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene'] //@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='EffectNode'] //@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='DiceRuleNode']"
+            sourceFinderExpression="aql:self"
+            targetFinderExpression="aql:if self.eContainer().effects->indexOf(self) &lt; self.eContainer().effects->size() then self.eContainer().effects->at(self.eContainer().effects->indexOf(self) + 1) else if self.eContainer().dicerule &lt;> null then self.eContainer().dicerule else self.eContainer().target endif endif"
+            domainClass="storyflow_hll::Effect"
+            useDomainElement="true">
+          <style routingStyle="manhattan" sizeComputationExpression="2" lineStyle="solid"
+              targetArrow="InputArrow">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_gray']"/>
+          </style>
+        </edgeMappings>
+
+        <!-- DiceSuccessEdge: dashed green from the DiceRule node to its
+             onSuccess Scene. (Was sourced from the choice's source Scene in
+             the previous design; now sources from the dice node itself.) -->
+        <edgeMappings name="DiceSuccessEdge"
+            semanticCandidatesExpression="aql:self.chapters.scenes.choices->select(c | c.dicerule &lt;> null).dicerule"
+            sourceMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='DiceRuleNode']"
+            targetMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene']"
+            sourceFinderExpression="aql:self"
+            targetFinderExpression="aql:self.onSuccess"
+            domainClass="storyflow_hll::DiceRule"
+            useDomainElement="true">
+          <style routingStyle="manhattan" sizeComputationExpression="2" lineStyle="dash"
+              targetArrow="InputArrow">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='green']"/>
+            <centerLabelStyleDescription labelSize="10" labelExpression="aql:'\u2713 success'">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_green']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+
+        <!-- DiceFailureEdge: dashed red from the DiceRule node to its
+             onFailure Scene. -->
+        <edgeMappings name="DiceFailureEdge"
+            semanticCandidatesExpression="aql:self.chapters.scenes.choices->select(c | c.dicerule &lt;> null).dicerule"
+            sourceMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='DiceRuleNode']"
+            targetMapping="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene']"
+            sourceFinderExpression="aql:self"
+            targetFinderExpression="aql:self.onFailure"
+            domainClass="storyflow_hll::DiceRule"
+            useDomainElement="true">
+          <style routingStyle="manhattan" sizeComputationExpression="2" lineStyle="dash"
+              targetArrow="InputArrow">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
+            <centerLabelStyleDescription labelSize="10" labelExpression="aql:'\u2717 failure'">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_red']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+
+        <!-- ============================================================== -->
+        <!-- TOOLS / PALETTE                                                 -->
+        <!-- ============================================================== -->
+        <toolSections name="Story Structure">
+
+          <ownedTools xsi:type="tool:ContainerCreationDescription"
+              name="CreateChapter" label="Chapter"
+              containerMappings="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:container">
+                <subModelOperations xsi:type="tool_1:CreateInstance"
+                    typeName="storyflow_hll::Chapter" referenceName="chapters" variableName="newChapter">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="name"
+                      valueExpression="aql:'NewChapter' + (container.chapters->size()).toString()"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="order"
+                      valueExpression="aql:container.chapters->size()"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+
+          <ownedTools xsi:type="tool:NodeCreationDescription"
+              name="CreateScene" label="Scene"
+              nodeMappings="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:container">
+                <subModelOperations xsi:type="tool_1:CreateInstance"
+                    typeName="storyflow_hll::Scene" referenceName="scenes" variableName="newScene">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="id"
+                      valueExpression="aql:'scene_' + (container.eContainer().chapters.scenes->size()).toString()"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="name"
+                      valueExpression="aql:'NewScene' + (container.scenes->size()).toString()"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+
+          <ownedTools xsi:type="tool:EdgeCreationDescription"
+              name="CreateChoice" label="Choice"
+              edgeMappings="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@edgeMappings[name='ChoiceEdge']"
+              extraSourceMappings="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene']"
+              extraTargetMappings="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ChapterContainer']/@subNodeMappings[name='Scene']">
+            <sourceVariable name="source"/>
+            <targetVariable name="target"/>
+            <sourceViewVariable name="sourceView"/>
+            <targetViewVariable name="targetView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:source">
+                <subModelOperations xsi:type="tool_1:CreateInstance"
+                    typeName="storyflow_hll::Choice" referenceName="choices" variableName="newChoice">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="target"
+                      valueExpression="var:target"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="id"
+                      valueExpression="aql:'choice_' + source.id + '_to_' + target.id"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="label"
+                      valueExpression="aql:'go to ' + target.name"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+
+        </toolSections>
+
+        <toolSections name="Story Resources">
+
+          <ownedTools xsi:type="tool:NodeCreationDescription"
+              name="CreateVariable" label="Variable"
+              nodeMappings="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ResourcesContainer']/@subNodeMappings[name='Variable']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:container">
+                <subModelOperations xsi:type="tool_1:CreateInstance"
+                    typeName="storyflow_hll::Variable" referenceName="variables" variableName="newVariable">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="name"
+                      valueExpression="aql:'var' + (container.variables->size()).toString()"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="type"
+                      valueExpression="aql:storyflow_hll::VarType::BOOLEAN"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="defaultValue"
+                      valueExpression="aql:'false'"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+
+          <ownedTools xsi:type="tool:NodeCreationDescription"
+              name="CreateCharacter" label="Character"
+              nodeMappings="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ResourcesContainer']/@subNodeMappings[name='Character']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:container">
+                <subModelOperations xsi:type="tool_1:CreateInstance"
+                    typeName="storyflow_hll::Character" referenceName="characters" variableName="newCharacter">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="id"
+                      valueExpression="aql:'char_' + (container.characters->size()).toString()"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="name"
+                      valueExpression="aql:'Character' + (container.characters->size()).toString()"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+
+          <ownedTools xsi:type="tool:NodeCreationDescription"
+              name="CreateInventoryItem" label="Inventory Item"
+              nodeMappings="//@ownedViewpoints[name='StoryFlow']/@ownedRepresentations[name='StoryDiagram']/@defaultLayer/@containerMappings[name='ResourcesContainer']/@subNodeMappings[name='InventoryItem']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:container">
+                <subModelOperations xsi:type="tool_1:CreateInstance"
+                    typeName="storyflow_hll::InventoryItem" referenceName="items" variableName="newItem">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="id"
+                      valueExpression="aql:'item_' + (container.items->size()).toString()"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="name"
+                      valueExpression="aql:'Item' + (container.items->size()).toString()"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+
+        </toolSections>
+
+        <toolSections name="Choice Details">
+
+          <ownedTools xsi:type="tool_1:PopupMenu" name="ChoicePopupMenu" label="Edit Choice...">
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="EditCondition" label="Edit / Set / Remove Condition..."
+                precondition="aql:self.canEditChoiceDetails()">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.editCondition()"/>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="EditDiceRule" label="Edit / Set / Remove Dice Rule..."
+                precondition="aql:self.canEditChoiceDetails()">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.editDiceRule()"/>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="AddEffect" label="Add Effect..."
+                precondition="aql:self.canAddEffect()">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.addEffect()"/>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="EditEffects" label="Replace All Effects..."
+                precondition="aql:self.canEditChoiceDetails()">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.editEffects()"/>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="RemoveThisEffect" label="Remove This Effect"
+                precondition="aql:self.canRemoveThisEffect()">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.removeThisEffect()"/>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="RemoveCondition" label="Quick: Remove Condition"
+                precondition="aql:self.canRemoveCondition()">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.removeCondition()"/>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="RemoveDiceRule" label="Quick: Remove Dice Rule"
+                precondition="aql:self.canRemoveDiceRule()">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.removeDiceRule()"/>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="ClearEffects" label="Quick: Clear All Effects"
+                precondition="aql:self.canClearEffects()">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.clearEffects()"/>
+              </initialOperation>
+            </menuItemDescription>
+
+          </ownedTools>
+
+        </toolSections>
+
+        <toolSections name="Scene Markers">
+
+          <ownedTools xsi:type="tool_1:PopupMenu" name="ScenePopupMenu" label="Mark Scene...">
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="ToggleStart" label="Toggle as Start Scene"
+                precondition="aql:self.oclIsTypeOf(storyflow_hll::Scene)">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:self">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="isStart" valueExpression="aql:not self.isStart"/>
+                </firstModelOperations>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="MarkEndingGood" label="Mark as GOOD Ending"
+                precondition="aql:self.oclIsTypeOf(storyflow_hll::Scene)">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:self">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="isEnding" valueExpression="aql:true"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="endingType" valueExpression="aql:storyflow_hll::EndingType::GOOD"/>
+                </firstModelOperations>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="MarkEndingBad" label="Mark as BAD Ending"
+                precondition="aql:self.oclIsTypeOf(storyflow_hll::Scene)">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:self">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="isEnding" valueExpression="aql:true"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="endingType" valueExpression="aql:storyflow_hll::EndingType::BAD"/>
+                </firstModelOperations>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="MarkEndingNeutral" label="Mark as NEUTRAL Ending"
+                precondition="aql:self.oclIsTypeOf(storyflow_hll::Scene)">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:self">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="isEnding" valueExpression="aql:true"/>
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="endingType" valueExpression="aql:storyflow_hll::EndingType::NEUTRAL"/>
+                </firstModelOperations>
+              </initialOperation>
+            </menuItemDescription>
+
+            <menuItemDescription xsi:type="tool_1:OperationAction"
+                name="UnmarkEnding" label="Unmark as Ending"
+                precondition="aql:self.oclIsTypeOf(storyflow_hll::Scene) and self.isEnding">
+              <view name="views"/>
+              <initialOperation>
+                <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:self">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="isEnding" valueExpression="aql:false"/>
+                </firstModelOperations>
+              </initialOperation>
+            </menuItemDescription>
+
+          </ownedTools>
+
+        </toolSections>
+
+      </defaultLayer>
+    </ownedRepresentations>
+    <ownedJavaExtensions qualifiedClassName="storyflow.design.Services"/>
+  </ownedViewpoints>
+
+  <!-- ================================================================== -->
+  <!-- PROPERTIES VIEW PAGES                                               -->
+  <!-- ================================================================== -->
+  <extensions xsi:type="properties:ViewExtensionDescription" name="StoryFlowProperties">
+    <categories name="Default Category">
+
+      <!-- ============== STORY ============== -->
+      <pages name="StoryPage" labelExpression="Story"
+          domainClass="storyflow_hll::Story" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='StoryGroup']"/>
+
+      <groups name="StoryGroup" labelExpression="Story Properties"
+          domainClass="storyflow_hll::Story" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextDescription" name="StoryName"
+            labelExpression="Name" valueExpression="feature:name">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextAreaDescription" name="StoryDescription"
+            labelExpression="Description" valueExpression="feature:description">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="description" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="StoryVersion"
+            labelExpression="Version" valueExpression="feature:version">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="version" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+      <!-- ============== CHAPTER ============== -->
+      <pages name="ChapterPage" labelExpression="Chapter"
+          domainClass="storyflow_hll::Chapter" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='ChapterGroup']"/>
+
+      <groups name="ChapterGroup" labelExpression="Chapter Properties"
+          domainClass="storyflow_hll::Chapter" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextDescription" name="ChapterName"
+            labelExpression="Name" valueExpression="feature:name">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="ChapterOrder"
+            labelExpression="Order" valueExpression="aql:self.order.toString()">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="order" valueExpression="aql:newValue.toInteger()"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextAreaDescription" name="ChapterDescription"
+            labelExpression="Description" valueExpression="feature:description">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="description" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+      <!-- ============== SCENE ============== -->
+      <pages name="ScenePage" labelExpression="Scene"
+          domainClass="storyflow_hll::Scene" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='SceneGroup']"/>
+
+      <groups name="SceneGroup" labelExpression="Scene Properties"
+          domainClass="storyflow_hll::Scene" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextDescription" name="SceneId"
+            labelExpression="Id" valueExpression="feature:id">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="id" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="SceneName"
+            labelExpression="Name" valueExpression="feature:name">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextAreaDescription" name="SceneDescription"
+            labelExpression="Description" valueExpression="feature:description">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="description" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:CheckboxDescription" name="SceneIsStart"
+            labelExpression="Is Start" valueExpression="feature:isStart">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="isStart" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:CheckboxDescription" name="SceneIsEnding"
+            labelExpression="Is Ending" valueExpression="feature:isEnding">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="isEnding" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:SelectDescription" name="SceneEndingType"
+            labelExpression="Ending Type"
+            valueExpression="feature:endingType"
+            candidatesExpression="aql:storyflow_hll::EndingType.eLiterals">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="endingType" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+      <!-- ============== CHOICE ============== -->
+      <pages name="ChoicePage" labelExpression="Choice"
+          domainClass="storyflow_hll::Choice" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='ChoiceGroup']"/>
+
+      <groups name="ChoiceGroup" labelExpression="Choice Properties"
+          domainClass="storyflow_hll::Choice" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextDescription" name="ChoiceId"
+            labelExpression="Id" valueExpression="feature:id">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="id" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="ChoiceLabel"
+            labelExpression="Label" valueExpression="feature:label">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="label" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:SelectDescription" name="ChoiceTarget"
+            labelExpression="Target Scene"
+            valueExpression="feature:target"
+            candidatesExpression="aql:self.eContainer().eContainer().eContainer().chapters.scenes">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="target" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+      <!-- ============== CONDITION ============== -->
+      <pages name="ConditionPage" labelExpression="Condition"
+          domainClass="storyflow_hll::Condition" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='ConditionGroup']"/>
+
+      <groups name="ConditionGroup" labelExpression="Condition Properties"
+          domainClass="storyflow_hll::Condition" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextAreaDescription" name="ConditionExpression"
+            labelExpression="Expression" valueExpression="feature:expression">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="expression" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:CheckboxDescription" name="ReferencedVars"
+            labelExpression="Referenced Variables"
+            valueExpression="aql:self.referencedVars->collect(v | v.name)->sep(', ')"/>
+        <controls xsi:type="properties:CheckboxDescription" name="ReferencedItems"
+            labelExpression="Referenced Items"
+            valueExpression="aql:self.referencedItems->collect(i | i.name)->sep(', ')"/>
+      </groups>
+
+      <!-- ============== EFFECT ============== -->
+      <pages name="EffectPage" labelExpression="Effect"
+          domainClass="storyflow_hll::Effect" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='EffectGroup']"/>
+
+      <groups name="EffectGroup" labelExpression="Effect Properties"
+          domainClass="storyflow_hll::Effect" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:SelectDescription" name="EffectType"
+            labelExpression="Type"
+            valueExpression="feature:type"
+            candidatesExpression="aql:storyflow_hll::EffectType.eLiterals">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="type" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="EffectValue"
+            labelExpression="Value" valueExpression="feature:value">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="value" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:SelectDescription" name="EffectTargetVar"
+            labelExpression="Target Variable"
+            valueExpression="feature:targetVar"
+            candidatesExpression="aql:self.eContainer().eContainer().eContainer().eContainer().variables">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="targetVar" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:SelectDescription" name="EffectTargetItem"
+            labelExpression="Target Item"
+            valueExpression="feature:targetItem"
+            candidatesExpression="aql:self.eContainer().eContainer().eContainer().eContainer().items">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="targetItem" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+      <!-- ============== DICE RULE ============== -->
+      <pages name="DiceRulePage" labelExpression="Dice Rule"
+          domainClass="storyflow_hll::DiceRule" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='DiceRuleGroup']"/>
+
+      <groups name="DiceRuleGroup" labelExpression="Dice Rule Properties"
+          domainClass="storyflow_hll::DiceRule" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextDescription" name="DiceMin"
+            labelExpression="Min" valueExpression="aql:self.min.toString()">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="min" valueExpression="aql:newValue.toInteger()"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="DiceMax"
+            labelExpression="Max" valueExpression="aql:self.max.toString()">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="max" valueExpression="aql:newValue.toInteger()"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="DiceThreshold"
+            labelExpression="Success Threshold" valueExpression="aql:self.successThreshold.toString()">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="successThreshold" valueExpression="aql:newValue.toInteger()"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:SelectDescription" name="DiceOnSuccess"
+            labelExpression="On Success Scene"
+            valueExpression="feature:onSuccess"
+            candidatesExpression="aql:self.eContainer().eContainer().eContainer().eContainer().chapters.scenes">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="onSuccess" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:SelectDescription" name="DiceOnFailure"
+            labelExpression="On Failure Scene"
+            valueExpression="feature:onFailure"
+            candidatesExpression="aql:self.eContainer().eContainer().eContainer().eContainer().chapters.scenes">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="onFailure" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+      <!-- ============== VARIABLE ============== -->
+      <pages name="VariablePage" labelExpression="Variable"
+          domainClass="storyflow_hll::Variable" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='VariableGroup']"/>
+
+      <groups name="VariableGroup" labelExpression="Variable Properties"
+          domainClass="storyflow_hll::Variable" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextDescription" name="VariableName"
+            labelExpression="Name" valueExpression="feature:name">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:SelectDescription" name="VariableType"
+            labelExpression="Type"
+            valueExpression="feature:type"
+            candidatesExpression="aql:storyflow_hll::VarType.eLiterals">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="type" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="VariableDefault"
+            labelExpression="Default Value" valueExpression="feature:defaultValue">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="defaultValue" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+      <!-- ============== CHARACTER ============== -->
+      <pages name="CharacterPage" labelExpression="Character"
+          domainClass="storyflow_hll::Character" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='CharacterGroup']"/>
+
+      <groups name="CharacterGroup" labelExpression="Character Properties"
+          domainClass="storyflow_hll::Character" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextDescription" name="CharacterId"
+            labelExpression="Id" valueExpression="feature:id">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="id" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="CharacterName"
+            labelExpression="Name" valueExpression="feature:name">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextAreaDescription" name="CharacterDescription"
+            labelExpression="Description" valueExpression="feature:description">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="description" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+      <!-- ============== INVENTORY ITEM ============== -->
+      <pages name="InventoryItemPage" labelExpression="Inventory Item"
+          domainClass="storyflow_hll::InventoryItem" semanticCandidateExpression="var:self"
+          groups="//@extensions.0/@categories.0/@groups[name='InventoryItemGroup']"/>
+
+      <groups name="InventoryItemGroup" labelExpression="Inventory Item Properties"
+          domainClass="storyflow_hll::InventoryItem" semanticCandidateExpression="var:self">
+        <controls xsi:type="properties:TextDescription" name="InventoryItemId"
+            labelExpression="Id" valueExpression="feature:id">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="id" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="InventoryItemName"
+            labelExpression="Name" valueExpression="feature:name">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextAreaDescription" name="InventoryItemDescription"
+            labelExpression="Description" valueExpression="feature:description">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool_1:SetValue" featureName="description" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+      </groups>
+
+    </categories>
+  </extensions>
+</description:Group>

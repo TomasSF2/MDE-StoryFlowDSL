@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="T3-03 Ending With Choice"
+    version="1">
+  <chapters name="Blackwell" order="1">
+    <scenes id="1" name="classroom" isStart="true">
+      <choices id="1" label="Submit the photo" target="//@chapters.0/@scenes.1"/>
+    </scenes>
+    <!-- VIOLATION: an ending scene that still has an outgoing choice. -->
+    <scenes id="2" name="ending_contest" isEnding="true" endingType="GOOD">
+      <choices id="1" label="Keep going somehow" target="//@chapters.0/@scenes.0"/>
+    </scenes>
+  </chapters>
+</storyflow_hll:Story>

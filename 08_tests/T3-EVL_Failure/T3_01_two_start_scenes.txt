@@ -1,0 +1,18 @@
+TEST T3-01 — Two start scenes
+Category: T3 (EVL failure)
+
+WHAT THIS TEST VERIFIES
+  That a model which is fully metamodel-conformant is rejected by EVL because it
+  breaks a domain semantic rule.
+  Both "dorm" and "hallway" set isStart=true; a story must have exactly one start.
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... PASS  (structure is legal)
+  EVL ............... FAIL on constraint ExactlyOneStartScene  (this is the only failing constraint)
+  Verification ...... not reached
+
+EXPECTED RESULT
+  EMF validation succeeds; running storyflow.evl flags ExactlyOneStartScene.
+
+EVIDENCE
+  Story 'T3-01 Two Start Scenes' must have exactly one start scene, but were found:2

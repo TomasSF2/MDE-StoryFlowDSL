@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Effect">
+  <title>Effect</title>
+  <rect width="64" height="64" fill="none"/>
+  <path d="M35 7L18 35h13l-3 22 18-31H33z" fill="#51CF66" stroke="#2B2B2B" stroke-width="3" stroke-linejoin="round"/>
+</svg>

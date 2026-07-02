@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Character">
+  <title>Character</title>
+  <rect width="64" height="64" fill="none"/>
+  <circle cx="32" cy="22" r="10" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="3"/>
+  <path d="M15 54c2-13 10-20 17-20s15 7 17 20" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M24 22c5 4 11 4 16 0" stroke="#FA5252" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,20 @@
+TEST T3-02 — Duplicate scene id
+Category: T3 (EVL failure)
+
+WHAT THIS TEST VERIFIES
+  That a model which is fully metamodel-conformant is rejected by EVL because it
+  breaks a domain semantic rule.
+  Scenes "cliff" and "lighthouse" both use id="1"; scene ids must be globally unique
+  (Scene.allInstances().select(id=self.id).size()=1).
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... PASS  (structure is legal)
+  EVL ............... FAIL on constraint UniqueSceneId  (this is the only failing constraint)
+  Verification ...... not reached
+
+EXPECTED RESULT
+  EMF validation succeeds; running storyflow.evl flags UniqueSceneId.
+
+EVIDENCE
+  Duplicate scene id: '1'
+  Duplicate scene id: '1'

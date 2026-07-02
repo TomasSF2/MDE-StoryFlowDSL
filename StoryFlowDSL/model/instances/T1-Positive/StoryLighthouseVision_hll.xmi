@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="The Lighthouse Vision"
+    description="Max climbs to the Arcadia Bay lighthouse through the storm to make sense of her vision"
+    version="1">
+  <variables
+      name="vision_understood"
+      type="BOOLEAN"
+      defaultValue="false"/>
+  <characters
+      id="max"
+      name="Max"
+      description="Max Caulfield"/>
+  <characters
+      id="warren"
+      name="Warren"
+      description="Warren Graham"/>
+  <items id="lighthouse_key"
+      name="Lighthouse Key"
+      description="The key to the lighthouse lamp room"/>
+  <items id="flashlight"
+      name="Flashlight"
+      description="A flashlight for the dark stairwell"/>
+  <chapters
+      name="The Storm"
+      order="1"
+      description="The tornado bears down on Arcadia Bay">
+    <scenes
+        id="1"
+        name="cliff_path"
+        description="Wind tears across the cliff trail. The lighthouse stands black against a sky full of the impossible tornado from Max's vision. A storage hut crouches against the rocks nearby."
+        isStart="true"
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Check the storage hut first"
+          target="//@chapters.0/@scenes.1"/>
+      <choices
+          id="2"
+          label="Go straight to the lighthouse door"
+          target="//@chapters.0/@scenes.2"/>
+    </scenes>
+    <scenes
+        id="2"
+        name="storage_hut"
+        description="Fishing gear and dust. On a hook by the window hang the lighthouse key and a flashlight. Max grabs both before the door slams in the gale."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Take the key and flashlight, then head to the lighthouse"
+          target="//@chapters.0/@scenes.2">
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.0"/>
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.1"/>
+      </choices>
+    </scenes>
+    <scenes
+        id="3"
+        name="lighthouse_base"
+        description="The base of the lighthouse. A locked steel door blocks the stairs to the lamp room. A rusted outer ladder offers another way up, straight into the wind."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Unlock the door to the lamp room"
+          target="//@chapters.0/@scenes.3">
+        <condition
+            expression="inventory contains lighthouse_key"
+            referencedItems="//@items.0"/>
+      </choices>
+      <choices
+          id="2"
+          label="Climb the outer ladder to look for Warren"
+          target="//@chapters.0/@scenes.4">
+        <dicerule
+            min="1"
+            max="6"
+            successThreshold="3"
+            onSuccess="//@chapters.0/@scenes.4"
+            onFailure="//@chapters.0/@scenes.5"/>
+      </choices>
+    </scenes>
+    <scenes
+        id="4"
+        name="lamp_room"
+        description="The lamp room at last. The great lens turns slowly, throwing light into the storm. Max presses her hand to the cold glass and the vision finally settles into something she can read."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Focus on the vision and understand what it means"
+          target="//@chapters.0/@scenes.7">
+        <effects
+            targetVar="//@variables.0"
+            value="true"/>
+      </choices>
+    </scenes>
+    <scenes
+        id="5"
+        name="outer_platform"
+        description="Soaked and shaking on the ladder platform, Max spots Warren stranded on the path below, waving. She guides him up out of the wind by the beam of her flashlight."
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Bring Warren to shelter inside the lighthouse"
+          target="//@chapters.0/@scenes.6"/>
+    </scenes>
+    <scenes
+        id="6"
+        name="storm_ledge"
+        description="A gust slams Max against a maintenance ledge. Bruised but unhurt, she finds a service hatch leading back into the lighthouse."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Climb back inside to the lighthouse base"
+          target="//@chapters.0/@scenes.2"/>
+    </scenes>
+    <scenes
+        id="7"
+        name="ending_safe_together"
+        description="Max and Warren wait out the worst of it on the stairs. The vision is still a mystery, but tonight neither of them faced the storm alone."
+        isEnding="true"
+        endingType="NEUTRAL"
+        characters="//@characters.0 //@characters.1"/>
+    <scenes
+        id="8"
+        name="ending_clarity"
+        description="The light sweeps the bay and the vision clears completely. Max knows now what the storm is, and what choice is coming. She is ready for it."
+        isEnding="true"
+        endingType="GOOD"
+        characters="//@characters.0"/>
+  </chapters>
+</storyflow_hll:Story>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Condition">
+  <title>Condition</title>
+  <rect width="64" height="64" fill="none"/>
+  <path d="M32 9l23 23-23 23L9 32z" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M22 32h20" stroke="#BE4BDB" stroke-width="4" stroke-linecap="round"/>
+  <path d="M32 22v20" stroke="#BE4BDB" stroke-width="4" stroke-linecap="round"/>
+</svg>

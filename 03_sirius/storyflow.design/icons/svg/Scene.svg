@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Scene">
+  <title>Scene</title>
+  <rect width="64" height="64" fill="none"/>
+  <rect x="10" y="18" width="44" height="30" rx="5" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="3"/>
+  <path d="M10 27h44M20 18l7 9M34 18l7 9" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="38" r="7" fill="#15AABF" stroke="#2B2B2B" stroke-width="3"/>
+</svg>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="104" height="104" viewBox="0 0 104 104" role="img" aria-label="Variable">
+  <title>Variable</title>
+  <rect x="14" y="20" width="76" height="64" rx="12" fill="#f5faff" stroke="#275c96" stroke-width="6"/>
+  <rect x="20" y="28" width="64" height="12" fill="#b9d8f5"/>
+  <path d="M34 55l18 18M52 55L34 73" fill="none" stroke="#19467d" stroke-width="7" stroke-linecap="round"/>
+  <path d="M62 58h22M62 72h22" fill="none" stroke="#19467d" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="84" cy="20" r="10" fill="#46a055" stroke="#266e37" stroke-width="4"/>
+</svg>

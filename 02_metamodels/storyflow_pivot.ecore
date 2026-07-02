@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="storyflow_pivot" nsURI="http://www.example.org/storyflow_pivot"
+    nsPrefix="storyflow_pivot">
+  <eClassifiers xsi:type="ecore:EClass" name="NarrativeGraph">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="storyName" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variables" ordered="false"
+        upperBound="-1" eType="#//PivotVariable" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items" ordered="false"
+        upperBound="-1" eType="#//PivotItem" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="nodes" ordered="false"
+        lowerBound="1" upperBound="-1" eType="#//Node" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="edges" upperBound="-1"
+        eType="#//Edge" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="startNode" ordered="false"
+        unique="false" lowerBound="1" eType="#//Node"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PivotVariable">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" unique="false" lowerBound="1"
+        eType="#//VarType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="initialValue" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PivotItem">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Node">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="label" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" unique="false"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isStart" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isAccepting" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="endingType" unique="false"
+        eType="#//EndingType" defaultValueLiteral="NEUTRAL"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="outgoing" unique="false"
+        eType="#//Edge"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Edge">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="label" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" ordered="false"
+        unique="false" lowerBound="1" eType="#//Node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" ordered="false"
+        unique="false" lowerBound="1" eType="#//Node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="guard" ordered="false"
+        upperBound="-1" eType="#//Guard" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actions" ordered="false"
+        upperBound="-1" eType="#//Action" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="diceRule" ordered="false"
+        eType="#//PivotDiceRule" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EndingType">
+    <eLiterals name="GOOD"/>
+    <eLiterals name="BAD" value="1"/>
+    <eLiterals name="NEUTRAL" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Guard">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="expression" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varRefs" unique="false"
+        eType="#//PivotVariable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="itemsRefs" unique="false"
+        eType="#//PivotItem"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Action">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" unique="false" lowerBound="1"
+        eType="#//ActionType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetVariable" unique="false"
+        eType="#//PivotVariable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetItem" unique="false"
+        eType="#//PivotItem"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="ActionType">
+    <eLiterals name="SET_VAR"/>
+    <eLiterals name="ADD_ITEM" value="1"/>
+    <eLiterals name="REMOVE_ITEM" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="VarType">
+    <eLiterals name="BOOLEAN"/>
+    <eLiterals name="INTEGER" value="1"/>
+    <eLiterals name="STRING" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PivotDiceRule">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="min" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="max" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="successThreshold" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="successTarget" unique="false"
+        lowerBound="1" eType="#//Node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="failureTarget" unique="false"
+        lowerBound="1" eType="#//Node"/>
+  </eClassifiers>
+</ecore:EPackage>

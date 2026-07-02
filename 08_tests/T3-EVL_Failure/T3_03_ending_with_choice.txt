@@ -1,0 +1,19 @@
+TEST T3-03 — Ending scene with a choice
+Category: T3 (EVL failure)
+
+WHAT THIS TEST VERIFIES
+  That a model which is fully metamodel-conformant is rejected by EVL because it
+  breaks a domain semantic rule.
+  "ending_contest" has isEnding=true yet declares an outgoing Choice; endings must be terminal
+  (self.choices.isEmpty()).
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... PASS  (structure is legal)
+  EVL ............... FAIL on constraint EndingSceneHasNoChoices  (this is the only failing constraint)
+  Verification ...... not reached
+
+EXPECTED RESULT
+  EMF validation succeeds; running storyflow.evl flags EndingSceneHasNoChoices.
+
+EVIDENCE
+  Scene 'ending_contest' is marked as an ending but has 1 outgoing choice(s). Ending scenes must be terminal.

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="T4-02 Softlock In The Dark Room"
+    description="Max enters a room whose only exit needs a code she can never obtain"
+    version="1">
+  <characters id="max" name="Max"/>
+  <items id="exit_code" name="Exit Code" description="Never granted anywhere"/>
+  <chapters name="Blackwell" order="1">
+    <scenes id="1" name="corridor" isStart="true" characters="//@characters.0">
+      <choices id="1" label="Step into the dark room" target="//@chapters.0/@scenes.1"/>
+    </scenes>
+    <scenes id="2" name="dark_room" characters="//@characters.0">
+      <choices id="1" label="Enter the exit code to leave" target="//@chapters.0/@scenes.2">
+        <condition expression="inventory contains exit_code" referencedItems="//@items.0"/>
+      </choices>
+    </scenes>
+    <scenes id="3" name="ending_escape" isEnding="true" endingType="GOOD"
+        characters="//@characters.0"/>
+  </chapters>
+</storyflow_hll:Story>

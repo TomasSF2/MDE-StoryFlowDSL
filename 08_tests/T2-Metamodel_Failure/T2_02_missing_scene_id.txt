@@ -1,0 +1,25 @@
+TEST T2-02 — Missing mandatory Scene.id
+Category: T2 (Metamodel failure)
+
+WHAT THIS TEST VERIFIES
+  That the EMF validator rejects a Scene with no 'id'.
+  Ecore rule: Scene.id is an EAttribute (EString) with lowerBound=1 (mandatory).
+  The start scene "dormitory" declares no id, so the feature is unset (null).
+
+PIPELINE EXPECTATION
+  Metamodel (EMF) ... FAIL  (rejected here)
+  EVL ............... not reached
+  Verification ...... not reached
+
+EXPECTED RESULT
+  EMF Diagnostician reports, e.g.
+  "The required feature 'id' of 'Scene dormitory' must be set."
+
+EVIDENCE
+  Description: The required feature 'id' of 'Scene dormitory' must be set
+  Resource: T2_02_missing_scene_id.xmi
+  Path: /StoryFlow/model
+  Location: Unknown
+  Type: EMF Problem
+  				
+

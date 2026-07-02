@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storyflow_hll:Story
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:storyflow_hll="http://www.example.org/storyflow_hll"
+    name="The Train Tracks"
+    description="Chloe is trapped on the rails in the junkyard and Max must free her before the train arrives"
+    version="1">
+  <variables
+      name="lever_freed"
+      type="BOOLEAN"
+      defaultValue="false"/>
+  <variables
+      name="rewind_energy"
+      type="INTEGER"
+      defaultValue="100"/>
+  <characters
+      id="max"
+      name="Max"
+      description="Max Caulfield"/>
+  <characters
+      id="chloe"
+      name="Chloe"
+      description="Chloe Price"/>
+  <items id="crowbar"
+      name="Crowbar"
+      description="A crowbar for prying the jammed switch lever"/>
+  <chapters
+      name="The Junkyard"
+      order="1"
+      description="A race against an oncoming train">
+    <scenes
+        id="1"
+        name="junkyard_arrival"
+        description="Chloe's foot is wedged in the points where the rails cross the junkyard. A horn sounds, far off but closing. Wrecked cars are heaped to one side; the switch box is just ahead."
+        isStart="true"
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Search the wrecks for something to pry with"
+          target="//@chapters.0/@scenes.1"/>
+      <choices
+          id="2"
+          label="Run straight to the switch box"
+          target="//@chapters.0/@scenes.2"/>
+    </scenes>
+    <scenes
+        id="2"
+        name="wreck_pile"
+        description="Rust and broken glass. Jammed under a fender, Max sees a heavy crowbar, exactly what the seized lever needs. But the horn is louder now. There may not be time to grab it."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Grab the crowbar and get to the switch box"
+          target="//@chapters.0/@scenes.2">
+        <effects
+            type="ADD_ITEM"
+            targetItem="//@items.0"/>
+      </choices>
+      <choices
+          id="2"
+          label="Abandon the crowbar and sprint to wrench the lever bare-handed"
+          target="//@chapters.0/@scenes.2">
+        <dicerule
+            min="1"
+            max="6"
+            successThreshold="5"
+            onSuccess="//@chapters.0/@scenes.2"
+            onFailure="//@chapters.0/@scenes.3"/>
+      </choices>
+    </scenes>
+    <scenes
+        id="3"
+        name="switch_box"
+        description="The track-switch lever is rusted solid. With the right tool it would give; bare hands are a gamble with the train this close. Beside it, the rails run on toward Chloe."
+        characters="//@characters.0">
+      <choices
+          id="1"
+          label="Pry the lever loose with the crowbar"
+          target="//@chapters.0/@scenes.2">
+        <condition
+            expression="inventory contains crowbar"
+            referencedItems="//@items.0"/>
+        <effects
+            targetVar="//@variables.0"
+            value="true"/>
+      </choices>
+      <choices
+          id="2"
+          label="Throw the switch and divert the train"
+          target="//@chapters.1/@scenes.0">
+        <condition
+            expression="lever_freed == true"
+            referencedVars="//@variables.0"/>
+      </choices>
+      <choices
+          id="3"
+          label="Forget the switch and rewind to pull Chloe free by hand"
+          target="//@chapters.1/@scenes.1"/>
+    </scenes>
+    <scenes
+        id="4"
+        name="too_late"
+        description="The lever screeches but won't move in time, and rewinding only buys a heartbeat. Max squeezes her eyes shut as the train roars through. Some moments even her power can't undo."
+        isEnding="true"
+        endingType="BAD"
+        characters="//@characters.0"/>
+  </chapters>
+  <chapters
+      name="The Last Second"
+      order="2"
+      description="However it ends, it ends here">
+    <scenes
+        id="5"
+        name="switch_thrown"
+        description="The points slam over. The train screams past on the far rail, missing Chloe by inches. Max hauls her up off the gravel, both of them shaking."
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Pull Chloe clear and hold on"
+          target="//@chapters.1/@scenes.2"/>
+    </scenes>
+    <scenes
+        id="6"
+        name="rewound_clear"
+        description="Max rewinds once more and drags Chloe's foot loose at the last instant. It costs her, blood and a splitting headache, but it works."
+        characters="//@characters.0 //@characters.1">
+      <choices
+          id="1"
+          label="Catch your breath and leave the tracks behind"
+          target="//@chapters.1/@scenes.3"/>
+    </scenes>
+    <scenes
+        id="7"
+        name="ending_chloe_saved"
+        description="They sit in the gravel laughing and crying at once. The train is gone and Chloe is alive. Whatever Arcadia Bay throws at them next, they'll face it together."
+        isEnding="true"
+        endingType="GOOD"
+        characters="//@characters.0 //@characters.1"/>
+    <scenes
+        id="8"
+        name="ending_close_call"
+        description="Chloe is free but the rewind has wrung Max dry. They limp away from the rails in silence, both of them rattled by how close it was."
+        isEnding="true"
+        endingType="NEUTRAL"
+        characters="//@characters.0 //@characters.1"/>
+  </chapters>
+</storyflow_hll:Story>
