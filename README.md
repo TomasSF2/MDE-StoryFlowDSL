@@ -1,5 +1,8 @@
 # StoryFlowDSL
 
+Final grade: 18.5
+
+
 **A Model-Driven Engineering Pipeline for Interactive Branching Narratives**
 
 StoryFlowDSL is a complete MDE pipeline for authoring interactive branching narratives. A narrative author models their story graphically using the Sirius editor. The system automatically validates, transforms, formally verifies, and generates a self-contained browser-playable HTML game with zero manual coding.
